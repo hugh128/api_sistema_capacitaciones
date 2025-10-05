@@ -1,32 +1,151 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateEmpresaDto } from './dto/create-empresa.dto';
 import { UpdateEmpresaDto } from './dto/update-empresa.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, EntityManager  } from 'typeorm';
 import { Empresa } from './entities/empresa.entity';
+import { handleDbError } from 'src/utils/database-error.util';
 
 @Injectable()
 export class EmpresaService {
   
-  constructor(@InjectRepository(Empresa) private empresaRepository: Repository<Empresa>) {}
+  constructor(@InjectRepository(Empresa)
+    private empresaRepository: Repository<Empresa>,
+    private readonly entityManager: EntityManager
+  ) {}
 
-  create(createEmpresaDto: CreateEmpresaDto) {
-    return 'This action adds a new empresa';
+  async create(createEmpresaDto: CreateEmpresaDto): Promise<any> {
+    try {
+      const { nombre, direccion, nit, telefono, correo, estado } = createEmpresaDto;
+
+      const result = await this.entityManager.query(
+        `EXEC sp_EMPRESA_ALTA
+          @NOMBRE = @0,
+          @DIRECCION = @1,
+          @NIT = @2,
+          @TELEFONO = @3,
+          @CORREO = @4,
+          @ESTADO = @5`,
+        [
+          nombre,
+          direccion,
+          nit,
+          telefono,
+          correo,
+          estado
+        ]
+      )
+
+      if (result && result.length > 0 && result[0].ID_EMPRESA !== undefined) {
+        return result;
+      } else {
+        throw new Error('El procedimiento almacenado no devolvió el ID de la empresa.');
+      }
+
+    } catch (error) {
+      handleDbError(error);
+    }
   }
 
   findAll() {
-    return `This action returns all empresa`;
+    try {
+      return this.empresaRepository.find()
+    } catch (error) {
+      handleDbError(error);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} empresa`;
+  async findOne(id: number): Promise<Empresa> {
+    try {
+      const empresa = await this.empresaRepository.findOneBy({
+        ID_EMPRESA: id
+      })
+
+      if (!empresa) {
+         throw new NotFoundException(`Empresa con ID ${id} no encontrada.`);
+      }
+
+      return empresa;
+    } catch (error) {
+      handleDbError(error);
+    }
   }
 
-  update(id: number, updateEmpresaDto: UpdateEmpresaDto) {
-    return `This action updates a #${id} empresa`;
+  async update(id: number, updateEmpresaDto: UpdateEmpresaDto): Promise<any> {
+    try {
+      const {nombre, direccion, nit, telefono, correo, estado } = updateEmpresaDto
+
+      const result = await this.entityManager.query(
+        `EXEC sp_EMPRESA_ACTUALIZAR
+          @ID_EMPRESA = @0,
+          @NOMBRE = @1,
+          @DIRECCION = @2,
+          @NIT = @3,
+          @TELEFONO = @4,
+          @CORREO = @5,
+          @ESTADO = @6`,
+        [
+          id,
+          nombre,
+          direccion,
+          nit,
+          telefono,
+          correo,
+          estado
+        ]
+      )
+
+      const spResult = result[0];
+
+      if (spResult && spResult.Success === 1) {
+          return { 
+              message: spResult.Message, 
+              id: spResult.ID_EMPRESA 
+          };
+      }
+      
+      if (spResult && spResult.Success === 0) {
+          return { 
+              message: spResult.Message, 
+              id: spResult.ID_EMPRESA 
+          };
+      }
+
+      throw new Error('El procedimiento almacenado devolvió un resultado inesperado.');
+
+    } catch (error) {
+      handleDbError(error)
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} empresa`;
+  async remove(id: number) {
+    try {
+      const result = await this.entityManager.query(
+          `EXEC sp_EMPRESA_BAJA
+            @ID_EMPRESA = @0`,
+          [id]
+      );
+
+      const spResult = result[0];
+
+      if (spResult && spResult.Success === 1) {
+          return { 
+              message: spResult.Message, 
+              id: spResult.ID_EMPRESA 
+          };
+      }
+      
+      if (spResult && spResult.Success === 0) {
+          return { 
+              message: spResult.Message, 
+              id: spResult.ID_EMPRESA 
+          };
+      }
+
+      throw new Error('El procedimiento almacenado devolvió un resultado inesperado.');
+
+    } catch (error) {
+      handleDbError(error);
+    }
   }
 }

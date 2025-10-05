@@ -23,6 +23,6 @@ export class Empresa {
   @Column({ default: 1 })
   ESTADO: boolean;
 
-  @Column({ type: 'datetime', default: () => 'GETDATE()' })
+  @Column({ type: 'datetime' })
   FECHA_CREACION: Date;
 }
