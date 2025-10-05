@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Puesto } from 'src/puesto/entities/puesto.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity('DEPARTAMENTO')
 export class Departamento {
@@ -16,4 +17,7 @@ export class Departamento {
 
     @Column({ name: 'FECHA_CREACION', type: 'datetime', default: () => 'GETDATE()', nullable: false })
     FECHA_CREACION: Date;
+
+    @OneToMany(() => Puesto, puesto => puesto.departamento)
+    puestos: Puesto[];
 }
