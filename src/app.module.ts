@@ -1,32 +1,44 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmpresaModule } from './empresa/empresa.module';
 import { DepartamentoModule } from './departamento/departamento.module';
 import { PuestoModule } from './puesto/puesto.module';
 import { PersonaModule } from './persona/persona.module';
 import { UsuarioModule } from './usuario/usuario.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mssql',
-      host: 'localhost',
-      port: 1433,
-      username: 'sa',
-      password: 'hao128',
-      database: 'GESTION_CAPACITACIONES',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
-      extra: {
-        encrypt: true,
-        trustServerCertificate: true,
-      },
+    ConfigModule.forRoot({
+      isGlobal: true,
     }),
+
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'mssql',
+        host: configService.get<string>('DB_HOST', 'localhost'),
+        port: +configService.get<number>('DB_PORT', 1433),
+        username: configService.get<string>('DB_USERNAME'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_DATABASE'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true,
+        extra: {
+          encrypt: true,
+          trustServerCertificate: true,
+        },
+      }),
+    }),
+
     EmpresaModule,
     DepartamentoModule,
     PuestoModule,
     PersonaModule,
     UsuarioModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

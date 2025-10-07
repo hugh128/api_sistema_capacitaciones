@@ -5,14 +5,17 @@ import { UpdatePasswordDto } from './dto/update-password.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Usuario } from './entities/usuario.entity';
 import { EntityManager, Repository } from 'typeorm';
-import { handleDbError } from 'src/utils/database-error.util';
+import { HashingService } from 'src/common/hashing.service';
+import { DatabaseErrorService } from 'src/common/database-error.service';
 
 @Injectable()
 export class UsuarioService {
 
   constructor(@InjectRepository(Usuario)
     private usuarioResposity: Repository<Usuario>,
-    private readonly entityManager: EntityManager
+    private readonly entityManager: EntityManager,
+    private readonly hashingService: HashingService,
+    private readonly databaseErrorService: DatabaseErrorService
   ) {}
 
   async create(createUsuarioDto: CreateUsuarioDto) {
@@ -20,9 +23,7 @@ export class UsuarioService {
       
       const { PERSONA_ID, USERNAME, PASSWORD, ESTADO } = createUsuarioDto;
 
-      // TODO: crear funcion para encriptar password
-      // 1. Encriptar la contraseña (Asegúrate de que esto no sea un valor dummy)
-      // const hashedPassword = 'MOCK_HASHED_PASSWORD'; 
+      const hashedPassword = this.hashingService.hash(PASSWORD)
       
       const result = await this.entityManager.query(
         `EXEC sp_USUARIO_ALTA
@@ -33,7 +34,7 @@ export class UsuarioService {
         [
           PERSONA_ID,
           USERNAME,
-          PASSWORD,
+          hashedPassword,
           ESTADO
         ]
       );
@@ -45,7 +46,7 @@ export class UsuarioService {
       }
 
     } catch (error) {
-      handleDbError(error);
+      this.databaseErrorService.handle(error)
     }
   }
 
@@ -58,7 +59,7 @@ export class UsuarioService {
       return result
 
     } catch (error) {
-      handleDbError(error); 
+      this.databaseErrorService.handle(error)
     }
   }
 
@@ -75,7 +76,15 @@ export class UsuarioService {
 
       return usuario;
     } catch (error) {
-      handleDbError(error);
+      this.databaseErrorService.handle(error)
+    }
+  }
+
+  async findByUsername(username: string): Promise<Usuario | null> {
+    try {
+      return this.usuarioResposity.findOneBy({ USERNAME: username });
+    } catch (error) {
+      this.databaseErrorService.handle(error)
     }
   }
 
@@ -113,26 +122,22 @@ export class UsuarioService {
 
       throw new Error('El procedimiento almacenado devolvió un resultado inesperado al actualizar al usuario.');
 
-
-
     } catch (error) {
-      handleDbError(error)
+      this.databaseErrorService.handle(error)
     }
   }
 
   async updatePassword(id: number, updatePasswordDto: UpdatePasswordDto): Promise<any> {
     const { PASSWORD } = updatePasswordDto;
     
-    // TODO: crear funcion para encriptar password
-    // 1. Encriptar la nueva contraseña ANTES de enviarla al SP 
-    // const hashedPassword = 'MOCK_NEW_HASHED_PASSWORD'; 
+    const hashedPassword = this.hashingService.hash(PASSWORD)
 
     try {
       const result = await this.entityManager.query(
         `EXEC sp_USUARIO_ACTUALIZAR_PASSWORD
           @ID_USUARIO = @0,
           @PASSWORD = @1`,
-        [id, PASSWORD]
+        [id, hashedPassword]
       );
 
       const spResult = result[0];
@@ -152,7 +157,7 @@ export class UsuarioService {
       }
 
     } catch (error) {
-      handleDbError(error);
+      this.databaseErrorService.handle(error)
     }
   }
 
@@ -183,7 +188,7 @@ export class UsuarioService {
     throw new Error('El procedimiento almacenado devolvió un resultado inesperado al dar de baja al usuario.');
     
     } catch (error) {
-      handleDbError(error);
+      this.databaseErrorService.handle(error)
     }
   }
 }
