@@ -35,9 +35,32 @@ export class AuthService {
 
       const token = this.jwtService.sign(payload); 
 
+      const usuarioAuth = {
+        id: usuario.ID_USUARIO,
+        username: usuario.USERNAME,
+        email: usuario.PERSONA.CORREO,
+        nombre: usuario.PERSONA.NOMBRE,
+        apellido: usuario.PERSONA.APELLIDO,
+        telefono: usuario.PERSONA.TELEFONO,
+        dpi: usuario.PERSONA.DPI,
+        puesto: usuario.PERSONA.PUESTO.NOMBRE,
+        departamento: usuario.PERSONA.DEPARTAMENTO.NOMBRE,
+        roles: [
+          {
+            id: "1",
+            nombre: "RRHH",
+            permisos: ["all"],
+          },
+        ],
+        estado: usuario.ESTADO ? "activo" : "inactivo"
+      }
+
+      console.log("Usuario autenticado")
+      console.log(usuarioAuth)
+
       return { 
         message: "Inicio de sesion exitoso",
-        usuario: { id: usuario.ID_USUARIO, nombre: usuario.USERNAME, token }
+        usuario: { data: usuarioAuth, token }
       };
 
     } catch (error) {

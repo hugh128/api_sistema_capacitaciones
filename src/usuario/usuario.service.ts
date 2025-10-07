@@ -82,7 +82,18 @@ export class UsuarioService {
 
   async findByUsername(username: string): Promise<Usuario | null> {
     try {
-      return this.usuarioResposity.findOneBy({ USERNAME: username });
+      return this.usuarioResposity.findOne({
+        where: {
+          USERNAME: username
+        },
+        relations: {
+          PERSONA: {
+            PUESTO: true,
+            DEPARTAMENTO: true,
+            EMPRESA: true,
+          }
+        }
+      });
     } catch (error) {
       this.databaseErrorService.handle(error)
     }

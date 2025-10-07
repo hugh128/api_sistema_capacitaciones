@@ -27,7 +27,9 @@ export class Usuario {
     @Column({ name: 'FECHA_CREACION', type: 'datetime', nullable: false })
     FECHA_CREACION: Date;
     
-    @ManyToOne(() => Persona, persona => persona.USUARIO)
+    //@ManyToOne(() => Persona, persona => persona.USUARIO, { eager: true })
+
+    @ManyToOne(() => Persona, persona => persona.USUARIO )
     @JoinColumn({ name: 'PERSONA_ID' })
     PERSONA: Persona;
 }
