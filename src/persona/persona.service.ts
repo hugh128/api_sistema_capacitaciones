@@ -65,7 +65,13 @@ export class PersonaService {
 
   async findAll() {
     try {
-      return await this.personaRepository.find();
+      return await this.personaRepository.find({
+        relations: {
+          EMPRESA: true,
+          DEPARTAMENTO: true,
+          PUESTO: true
+        }
+      });
     } catch (error) {
       handleDbError(error)
     }

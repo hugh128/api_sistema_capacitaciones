@@ -23,7 +23,7 @@ export class UsuarioService {
       
       const { PERSONA_ID, USERNAME, PASSWORD, ESTADO } = createUsuarioDto;
 
-      const hashedPassword = this.hashingService.hash(PASSWORD)
+      const hashedPassword = await this.hashingService.hash(PASSWORD)
       
       const result = await this.entityManager.query(
         `EXEC sp_USUARIO_ALTA
@@ -52,7 +52,11 @@ export class UsuarioService {
 
   async findAll(): Promise<Usuario[] | []> {
     try {
-      const result = await this.usuarioResposity.find();
+      const result = await this.usuarioResposity.find({
+        relations: {
+          PERSONA: true
+        }
+      });
 
       if (result.length === 0) return []
 

@@ -46,7 +46,11 @@ export class PuestoService {
 
   async findAll() {
     try {
-      return await this.puestoReposity.find()
+      return await this.puestoReposity.find({
+        relations: {
+          departamento: true
+        }
+      })
     } catch (error) {
       handleDbError(error)
     }
