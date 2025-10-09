@@ -15,8 +15,9 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   const reflector = app.get(Reflector);
   app.useGlobalGuards(new JwtAuthGuard(reflector));
-  await app.listen(process.env.PORT ?? 3001);
+  const port = process.env.PORT || 3001;
+  await app.listen(port);
 
-  console.log(`Servidor corriendo en el puersto 3001`);
+  console.log(`Servidor corriendo en el puerto ${port}`);
 }
 bootstrap();
