@@ -18,6 +18,6 @@ export class Departamento {
     @Column({ name: 'FECHA_CREACION', type: 'datetime', default: () => 'GETDATE()', nullable: false })
     FECHA_CREACION: Date;
 
-    @OneToMany(() => Puesto, puesto => puesto.departamento)
-    puestos: Puesto[];
+    @OneToMany(() => Puesto, puesto => puesto.DEPARTAMENTO)
+    PUESTOS: Puesto[];
 }

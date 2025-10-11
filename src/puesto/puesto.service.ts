@@ -48,7 +48,7 @@ export class PuestoService {
     try {
       return await this.puestoReposity.find({
         relations: {
-          departamento: true
+          DEPARTAMENTO: true
         }
       })
     } catch (error) {
