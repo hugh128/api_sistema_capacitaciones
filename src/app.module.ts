@@ -7,6 +7,8 @@ import { PuestoModule } from './puesto/puesto.module';
 import { PersonaModule } from './persona/persona.module';
 import { UsuarioModule } from './usuario/usuario.module';
 import { AuthModule } from './auth/auth.module';
+import { DocumentoModule } from './documento/documento.module';
+import { DocumentoAsociadoModule } from './documento-asociado/documento-asociado.module';
 
 @Module({
   imports: [
@@ -39,6 +41,8 @@ import { AuthModule } from './auth/auth.module';
     PersonaModule,
     UsuarioModule,
     AuthModule,
+    DocumentoModule,
+    DocumentoAsociadoModule,
   ],
 })
 export class AppModule {}
