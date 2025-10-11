@@ -4,19 +4,20 @@ import { UpdateEmpresaDto } from './dto/update-empresa.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager  } from 'typeorm';
 import { Empresa } from './entities/empresa.entity';
-import { handleDbError } from 'src/utils/database-error.util';
+import { DatabaseErrorService } from 'src/common/database-error.service';
 
 @Injectable()
 export class EmpresaService {
   
   constructor(@InjectRepository(Empresa)
     private empresaRepository: Repository<Empresa>,
-    private readonly entityManager: EntityManager
+    private readonly entityManager: EntityManager,
+    private readonly databaseErrorService: DatabaseErrorService
   ) {}
 
   async create(createEmpresaDto: CreateEmpresaDto): Promise<any> {
     try {
-      const { nombre, direccion, nit, telefono, correo, estado } = createEmpresaDto;
+      const { NOMBRE, DIRECCION, NIT, TELEFONO, CORREO, ESTADO } = createEmpresaDto;
 
       const result = await this.entityManager.query(
         `EXEC sp_EMPRESA_ALTA
@@ -27,12 +28,12 @@ export class EmpresaService {
           @CORREO = @4,
           @ESTADO = @5`,
         [
-          nombre,
-          direccion,
-          nit,
-          telefono,
-          correo,
-          estado
+          NOMBRE,
+          DIRECCION,
+          NIT,
+          TELEFONO,
+          CORREO,
+          ESTADO
         ]
       )
 
@@ -43,7 +44,7 @@ export class EmpresaService {
       }
 
     } catch (error) {
-      handleDbError(error);
+      this.databaseErrorService.handle(error);
     }
   }
 
@@ -51,7 +52,7 @@ export class EmpresaService {
     try {
       return this.empresaRepository.find()
     } catch (error) {
-      handleDbError(error);
+      this.databaseErrorService.handle(error);
     }
   }
 
@@ -67,13 +68,13 @@ export class EmpresaService {
 
       return empresa;
     } catch (error) {
-      handleDbError(error);
+      this.databaseErrorService.handle(error);
     }
   }
 
   async update(id: number, updateEmpresaDto: UpdateEmpresaDto): Promise<any> {
     try {
-      const {nombre, direccion, nit, telefono, correo, estado } = updateEmpresaDto
+      const { NOMBRE, DIRECCION, NIT, TELEFONO, CORREO, ESTADO } = updateEmpresaDto
 
       const result = await this.entityManager.query(
         `EXEC sp_EMPRESA_ACTUALIZAR
@@ -86,12 +87,12 @@ export class EmpresaService {
           @ESTADO = @6`,
         [
           id,
-          nombre,
-          direccion,
-          nit,
-          telefono,
-          correo,
-          estado
+          NOMBRE,
+          DIRECCION,
+          NIT,
+          TELEFONO,
+          CORREO,
+          ESTADO
         ]
       )
 
@@ -114,7 +115,7 @@ export class EmpresaService {
       throw new Error('El procedimiento almacenado devolvió un resultado inesperado.');
 
     } catch (error) {
-      handleDbError(error)
+      this.databaseErrorService.handle(error);
     }
   }
 
@@ -145,7 +146,7 @@ export class EmpresaService {
       throw new Error('El procedimiento almacenado devolvió un resultado inesperado.');
 
     } catch (error) {
-      handleDbError(error);
+      this.databaseErrorService.handle(error);
     }
   }
 }
