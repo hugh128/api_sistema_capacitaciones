@@ -46,7 +46,7 @@ export class DocumentoAsociadoService {
   async findAll(): Promise<DocumentoAsociado[]> {
     try {
       const result = await this.documentoAsociadoRepository.find({
-        relations: ['DOCUMENTO'], // si definiste la relación con la entidad Documento
+        relations:{ DOCUMENTO: true }
       });
       return result;
     } catch (error) {

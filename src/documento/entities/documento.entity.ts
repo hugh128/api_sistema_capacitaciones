@@ -1,5 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
-
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { DocumentoAsociado } from "src/documento-asociado/entities/documento-asociado.entity";
 @Entity('DOCUMENTO')
 export class Documento {
     @PrimaryGeneratedColumn({ name: 'ID_DOCUMENTO' })
@@ -14,11 +14,18 @@ export class Documento {
     @Column({ name: 'NOMBRE_DOCUMENTO', type: 'varchar', length: 255, nullable: false })
     NOMBRE_DOCUMENTO: string;
 
+    @Column({ name: 'VERSION', type: 'int', default: 1, nullable: false })
+    VERSION: number;
+
     @Column({ name: 'APROBACION', type: 'date', nullable: true })
     APROBACION: Date;
     
     @Column({ name: 'ESTATUS', type: 'bit', default: 1, nullable: false })
     ESTATUS: boolean;
+
+    @OneToMany(() => DocumentoAsociado, documentoAsociado => documentoAsociado.DOCUMENTO)
+    DOCUMENTO_ASOCIADO: DocumentoAsociado[];
+
 
 }
 /**

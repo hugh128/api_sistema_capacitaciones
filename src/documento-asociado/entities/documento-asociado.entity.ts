@@ -1,4 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Documento } from 'src/documento/entities/documento.entity';
+
+@Entity('DOCUMENTO_ASOCIADO')
 export class DocumentoAsociado {
     @PrimaryGeneratedColumn({ name: 'ID_DOC_ASOCIADO' })
     ID_DOC_ASOCIADO: number;
@@ -14,6 +17,10 @@ export class DocumentoAsociado {
 
     @Column({ name: 'ESTATUS', type: 'bit', default: 1, nullable: false })
     ESTATUS: boolean;   
+
+    @ManyToOne(() => Documento, documento => documento.DOCUMENTO_ASOCIADO, { eager: true, nullable: true }) 
+    @JoinColumn({ name: 'DOCUMENTO_ID' })
+    DOCUMENTO: Documento;
 }
 /*
 CREATE TABLE DOCUMENTO_ASOCIADO(

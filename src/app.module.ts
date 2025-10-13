@@ -9,6 +9,7 @@ import { UsuarioModule } from './usuario/usuario.module';
 import { AuthModule } from './auth/auth.module';
 import { DocumentoModule } from './documento/documento.module';
 import { DocumentoAsociadoModule } from './documento-asociado/documento-asociado.module';
+import { PdfModule } from './pdf-module/pdf-module.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { DocumentoAsociadoModule } from './documento-asociado/documento-asociado
     AuthModule,
     DocumentoModule,
     DocumentoAsociadoModule,
+    PdfModule,
   ],
 })
 export class AppModule {}
