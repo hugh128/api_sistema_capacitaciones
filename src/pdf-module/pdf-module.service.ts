@@ -35,7 +35,7 @@ export class PdfService {
 
     //Mapear
     const datos: InduccionData = {
-      titulo: (documento as any).NOMBRE_DOCUMENTO ?? 'INDUCCIÓN DOCUMENTAL AL PUESTO',
+      titulo:  'INDUCCIÓN DOCUMENTAL AL PUESTO',
       codigo: (documento as any).CODIGO ?? '—',
       version: (documento as any).VERSION ?? (documento as any).TIPO_DOCUMENTO ?? '—',
       fechaEmision: documento.APROBACION ? new Date(documento.APROBACION).toLocaleDateString() : '—',

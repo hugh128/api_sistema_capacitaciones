@@ -21,7 +21,6 @@ export interface DrawTableOptions {
   images?: (Uint8Array | null)[][];
   headerColors?: (string | [number, number, number])[] | [number, number, number];
 
-  // Nuevos campos de estilo:
   headerTextColors?: (string | [number, number, number])[] | [number, number, number];
   rowTextColors?: ((string | [number, number, number])[] | [number, number, number])[];
   headerFontWeights?: ('normal' | 'bold')[];
@@ -29,6 +28,7 @@ export interface DrawTableOptions {
   cellBackgroundColors?: (([number, number, number] | null)[] | [number, number, number] | null)[];
   cellBorderColors?: (([number, number, number] | null)[] | [number, number, number] | null)[];
   cellBorderWidths?: (number[] | number)[];
+  hideHeader?: boolean; 
 }
 
 export async function drawTable(options: DrawTableOptions) {
@@ -66,7 +66,7 @@ export async function drawTable(options: DrawTableOptions) {
   let cursorY = startY ?? page.getHeight() - marginY;
 
   // === ENCABEZADOS ===
-  if (headers.length > 0) {
+  if (headers.length > 0 && !options.hideHeader) {
     const headerHeight = 25;
     let cellX = marginX;
     const headerY = cursorY;

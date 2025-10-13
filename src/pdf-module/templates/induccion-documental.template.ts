@@ -222,10 +222,38 @@ export async function generarInduccionDocumentalPdf(
   font,
   fontSize: 8,
   marginX: marginX,
-  marginY: 181,
-  startY: page.getHeight() - 200,
+  columnFontSizes: [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8], //tamaño de fuente por columna
+  startY: page.getHeight() - 207,
   columnWeights: [0.03, 0.25, 0.12, 0.08, 0.10, 0.08, 0.1, 0.08, 0.10, 0.12, 0.10, 0.10],
+  hideHeader: true,
+  cellBackgroundColors: [
+  [[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1], [0, 0.8, 0]], // Fila 0: 3 columnas
+  [[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1], [1, 1, 1]], // Fila 1
+  [[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1], [1, 1, 1]], // Fila 2
+]
 });
+  const footerBoxHeight = 80;
+  const footerBoxY = 100;
+  const width = page.getWidth();
+    // Textos de firmas
+  const fy = footerBoxY + footerBoxHeight - 20;
+
+  page.drawText('Nombre del Jefe Inmediato:', { x: marginX + 400, y: fy, size: 10, font });
+  page.drawText('__________________________', { x: marginX + 550, y: fy, size: 10, font });
+
+  page.drawText('Firma del Jefe Inmediato:', { x: marginX + 400, y: fy-20, size: 10, font });
+  page.drawText('__________________________', { x: marginX + 550, y: fy-20, size: 10, font });
+
+  page.drawText('Fecha inicio inducción:', { x: marginX + 400, y: fy - 40, size: 10, font });
+  page.drawText('__________________________', { x: marginX + 550, y: fy - 40, size: 10, font });
+
+  page.drawText('Fecha fin inducción:', { x: marginX + 400, y: fy - 60, size: 10, font });
+  page.drawText('__________________________', { x: marginX + 550, y: fy - 60, size: 10, font });
+
+  const voboText = 'Vo.Bo. Recursos Humanos';
+  const voboW = font.widthOfTextAtSize(voboText, 10);
+  page.drawText(voboText, { x: marginX + 400, y: fy-80, size: 10, font });
+  page.drawText('__________________________', { x: marginX + 550, y: fy - 80, size: 10, font });
 
 
   // --- Retorna el PDF final ---
