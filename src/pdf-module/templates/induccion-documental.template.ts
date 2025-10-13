@@ -48,13 +48,13 @@ export async function generarInduccionDocumentalPdf(
   const header = [
     'Logo',
     data.titulo,
-    `Código:${data.codigo}`,
+    `Código:\n${data.codigo}`,
   ];
 
   const rowHeader = [
     'Versión: ' + data.version,
     'Fecha de emisión: ' + data.fechaEmision,
-    `Fecha de próxima revisión:${data.fechaRevision}`,
+    `Fecha de próxima revisión:\n${data.fechaRevision}`,
   ];
   const headers = [
     'No.',
