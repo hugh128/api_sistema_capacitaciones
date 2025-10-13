@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { DocumentoModule } from './documento/documento.module';
 import { DocumentoAsociadoModule } from './documento-asociado/documento-asociado.module';
 import { CategoriaPermisoModule } from './categoria-permiso/categoria-permiso.module';
+import { PermisoModule } from './permiso/permiso.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { CategoriaPermisoModule } from './categoria-permiso/categoria-permiso.mo
     DocumentoModule,
     DocumentoAsociadoModule,
     CategoriaPermisoModule,
+    PermisoModule,
   ],
 })
 export class AppModule {}

@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-//import { Permiso } from './permiso.entity';
+import { Permiso } from 'src/permiso/entities/permiso.entity';
 
 @Entity('CATEGORIA_PERMISO')
 export class CategoriaPermiso {
@@ -16,6 +16,6 @@ export class CategoriaPermiso {
     DESCRIPCION: string;
 
     // Relación One-to-Many con PERMISO
-/*     @OneToMany(() => Permiso, permiso => permiso.CATEGORIA)
-    PERMISOS: Permiso[]; */
+    @OneToMany(() => Permiso, permiso => permiso.CATEGORIA)
+    PERMISOS: Permiso[];
 }
