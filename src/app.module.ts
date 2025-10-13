@@ -11,6 +11,8 @@ import { DocumentoModule } from './documento/documento.module';
 import { DocumentoAsociadoModule } from './documento-asociado/documento-asociado.module';
 import { CategoriaPermisoModule } from './categoria-permiso/categoria-permiso.module';
 import { PermisoModule } from './permiso/permiso.module';
+import { RolModule } from './rol/rol.module';
+import { RolPermisoModule } from './rol-permiso/rol-permiso.module';
 
 @Module({
   imports: [
@@ -47,6 +49,8 @@ import { PermisoModule } from './permiso/permiso.module';
     DocumentoAsociadoModule,
     CategoriaPermisoModule,
     PermisoModule,
+    RolModule,
+    RolPermisoModule,
   ],
 })
 export class AppModule {}

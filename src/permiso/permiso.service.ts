@@ -46,7 +46,11 @@ export class PermisoService {
 
   async findAll() {
     try {
-      return await this.permisoRepository.find();
+      return await this.permisoRepository.find({
+        relations: {
+          CATEGORIA: true
+        }
+      });
     } catch (error) {
       this.databaseErrorService.handle(error);
     }
