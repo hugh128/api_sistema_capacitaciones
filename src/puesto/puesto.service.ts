@@ -17,7 +17,7 @@ export class PuestoService {
   async create(createPuestoDto: CreatePuestoDto) {
     try {
       
-      const { nombre, descripcion, estado, departamentoId } = createPuestoDto;
+      const { NOMBRE, DESCRIPCION, ESTADO, DEPARTAMENTO_ID } = createPuestoDto;
 
       const result = await this.entityManager.query(
         `EXEC sp_PUESTO_ALTA 
@@ -26,10 +26,10 @@ export class PuestoService {
           @ESTADO = @2, 
           @DEPARTAMENTO_ID = @3`, 
         [
-          nombre,
-          descripcion,
-          estado,
-          departamentoId
+          NOMBRE,
+          DESCRIPCION,
+          ESTADO,
+          DEPARTAMENTO_ID
         ]
       );
 
@@ -48,7 +48,7 @@ export class PuestoService {
     try {
       return await this.puestoReposity.find({
         relations: {
-          departamento: true
+          DEPARTAMENTO: true
         }
       })
     } catch (error) {
@@ -74,7 +74,7 @@ export class PuestoService {
 
   async update(id: number, updatePuestoDto: UpdatePuestoDto) {
     try {
-      const { nombre, descripcion, estado, departamentoId } = updatePuestoDto;
+      const { NOMBRE, DESCRIPCION, ESTADO, DEPARTAMENTO_ID } = updatePuestoDto;
 
       const result = await this.entityManager.query(
         `EXEC sp_PUESTO_ACTUALIZAR
@@ -85,10 +85,10 @@ export class PuestoService {
           @DEPARTAMENTO_ID = @4`, 
         [
           id,
-          nombre,
-          descripcion,
-          estado,
-          departamentoId
+          NOMBRE,
+          DESCRIPCION,
+          ESTADO,
+          DEPARTAMENTO_ID
         ]
       );
 

@@ -4,13 +4,13 @@ export class CreateDepartamentoDto {
     @IsString()
     @IsNotEmpty({ message: 'El nombre del departamento es requerido.' })
     @MaxLength(100)
-    nombre: string;
+    NOMBRE: string;
 
     @IsString()
     @IsOptional()
     @MaxLength(255)
-    descripcion?: string;
+    DESCRIPCION?: string;
 
     @IsOptional()
-    estado?: boolean;
+    ESTADO?: boolean;
 }

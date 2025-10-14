@@ -16,7 +16,7 @@ export class DepartamentoService {
 
   async create(createDepartamentoDto: CreateDepartamentoDto) {
     try {
-      const { nombre, descripcion, estado = true } = createDepartamentoDto;
+      const { NOMBRE, DESCRIPCION, ESTADO } = createDepartamentoDto;
 
       const result = await this.entityManager.query(
         `EXEC sp_DEPARTAMENTO_ALTA 
@@ -24,9 +24,9 @@ export class DepartamentoService {
             @DESCRIPCION = @1, 
             @ESTADO = @2`, 
         [
-          nombre,
-          descripcion,
-          estado
+          NOMBRE,
+          DESCRIPCION,
+          ESTADO
         ]
       );
 
@@ -56,7 +56,7 @@ export class DepartamentoService {
       })
 
       if (!departamento) {
-         throw new NotFoundException(`Departamento con ID ${id} no encontrado.`);
+        throw new NotFoundException(`Departamento con ID ${id} no encontrado.`);
       }
 
       return departamento;
@@ -67,7 +67,7 @@ export class DepartamentoService {
 
   async update(id: number, updateDepartamentoDto: UpdateDepartamentoDto) {
     try {
-      const { nombre, descripcion, estado } = updateDepartamentoDto;
+      const { NOMBRE, DESCRIPCION, ESTADO } = updateDepartamentoDto;
 
       const result = await this.entityManager.query(
         `EXEC sp_DEPARTAMENTO_ACTUALIZAR
@@ -75,23 +75,28 @@ export class DepartamentoService {
             @NOMBRE = @1,
             @DESCRIPCION = @2,
             @ESTADO = @3`,
-        [id, nombre, descripcion, estado]
+        [
+          id,
+          NOMBRE,
+          DESCRIPCION,
+          ESTADO
+        ]
       );
 
       const spResult = result[0];
 
       if (spResult && spResult.Success === 1) {
-          return {
-              message: spResult.Message,
-              id: spResult.ID_DEPARTAMENTO
-          };
+        return {
+          message: spResult.Message,
+          id: spResult.ID_DEPARTAMENTO
+        };
       }
       
       if (spResult && spResult.Success === 0) {
-          return {
-              message: spResult.Message,
-              id: spResult.ID_DEPARTAMENTO
-          };
+        return {
+          message: spResult.Message,
+          id: spResult.ID_DEPARTAMENTO
+        };
       }
 
       throw new Error('El procedimiento almacenado devolvió un resultado inesperado.');
@@ -104,24 +109,24 @@ export class DepartamentoService {
   async remove(id: number) {
     try {
       const result = await this.entityManager.query(
-          `EXEC sp_DEPARTAMENTO_BAJA @ID_DEPARTAMENTO = @0`,
-          [id]
+        `EXEC sp_DEPARTAMENTO_BAJA @ID_DEPARTAMENTO = @0`,
+        [id]
       );
 
       const spResult = result[0];
 
       if (spResult && spResult.Success === 1) {
-          return { 
-              message: spResult.Message, 
-              id: spResult.ID_DEPARTAMENTO 
-          };
+        return { 
+          message: spResult.Message, 
+          id: spResult.ID_DEPARTAMENTO 
+        };
       }
       
       if (spResult && spResult.Success === 0) {
-          return { 
-              message: spResult.Message, 
-              id: spResult.ID_DEPARTAMENTO 
-          };
+        return { 
+          message: spResult.Message, 
+          id: spResult.ID_DEPARTAMENTO 
+        };
       }
 
       throw new Error('El procedimiento almacenado devolvió un resultado inesperado al borrar departamento.');

@@ -1,6 +1,6 @@
 import { 
     IsInt, IsNotEmpty, IsString, MaxLength, IsOptional, 
-    IsBoolean, ArrayMinSize, ArrayUnique, IsDateString
+    ArrayMinSize, ArrayUnique, IsDateString
 } from 'class-validator';
 
 export class CreateUsuarioDto {
@@ -26,9 +26,8 @@ export class CreateUsuarioDto {
     ULTIMO_ACCESO?: Date; 
     
     // Roles asociados al usuario
-/*     @IsInt({ each: true })
+    @IsInt({ each: true })
     @ArrayMinSize(1, { message: 'El usuario debe tener al menos un rol.' })
     @ArrayUnique()
-    ID_ROLES: number[]; */
-
+    ID_ROLES: number[];
 }

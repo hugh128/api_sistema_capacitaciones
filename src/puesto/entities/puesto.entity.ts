@@ -19,7 +19,7 @@ export class Puesto {
     @Column({ name: 'DEPARTAMENTO_ID', nullable: false })
     DEPARTAMENTO_ID: number;
 
-    @ManyToOne(() => Departamento, departamento => departamento.puestos)
+    @ManyToOne(() => Departamento, departamento => departamento.PUESTOS)
     @JoinColumn({ name: 'DEPARTAMENTO_ID' })
-    departamento: Departamento;
+    DEPARTAMENTO: Departamento;
 }

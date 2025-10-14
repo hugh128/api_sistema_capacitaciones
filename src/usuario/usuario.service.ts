@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
@@ -18,52 +18,113 @@ export class UsuarioService {
     private readonly databaseErrorService: DatabaseErrorService
   ) {}
 
-  async create(createUsuarioDto: CreateUsuarioDto) {
-    try {
-      
-      const { PERSONA_ID, USERNAME, PASSWORD, ESTADO } = createUsuarioDto;
-
-      const hashedPassword = await this.hashingService.hash(PASSWORD)
-      
-      const result = await this.entityManager.query(
-        `EXEC sp_USUARIO_ALTA
-          @PERSONA_ID = @0,
-          @USERNAME = @1,
-          @PASSWORD = @2,
-          @ESTADO = @3`,
-        [
-          PERSONA_ID,
-          USERNAME,
-          hashedPassword,
-          ESTADO
-        ]
-      );
-
-      if (result && result.length > 0 && result[0].ID_USUARIO !== undefined) {
-        return result;
-      } else {
-        throw new Error('El procedimiento almacenado no devolvió el ID del usuario.');
-      }
-
-    } catch (error) {
-      this.databaseErrorService.handle(error)
-    }
+  private getIdsString(ids: (number | string)[]): string {
+    return ids.map(id => String(id)).join(',');
   }
 
-  async findAll(): Promise<Usuario[] | []> {
+
+  async create(createUsuarioDto: CreateUsuarioDto) {
+    const { PERSONA_ID, USERNAME, PASSWORD, ESTADO, ID_ROLES } = createUsuarioDto;
+    
+    const hashedPassword = await this.hashingService.hash(PASSWORD)
+
+    return this.entityManager.transaction(async manager => {
+      try {
+        const usuarioResult = await manager.query(
+          `EXEC sp_USUARIO_ALTA
+            @PERSONA_ID = @0,
+            @USERNAME = @1,
+            @PASSWORD = @2,
+            @ESTADO = @3`,
+          [
+            PERSONA_ID,
+            USERNAME,
+            hashedPassword,
+            ESTADO
+          ]
+        );
+
+        const newUsuarioId = usuarioResult[0].ID_USUARIO;
+
+        if (!newUsuarioId) {
+          throw new Error('El procedimiento almacenado no devolvió el ID del usuario.');
+        }
+        
+        if (ID_ROLES && ID_ROLES.length > 0) {
+          const rolesString = this.getIdsString(ID_ROLES);
+          
+          await manager.query(
+            `EXEC sp_USUARIO_ROL_SINCRONIZAR
+              @ID_USUARIO = @0,
+              @ROLES_IDS_STRING = @1`,
+            [
+              newUsuarioId,
+              rolesString
+            ]
+          );
+        }
+        
+        return newUsuarioId;
+
+      } catch (error) {
+        this.databaseErrorService.handle(error);
+      }
+    });
+  }
+
+  async findAll() {
     try {
-      const result = await this.usuarioResposity.find({
+      const usuarios = await this.usuarioResposity.find({
         relations: {
-          PERSONA: true
+          PERSONA: true,
+          USUARIO_ROLES: {
+            ROL: {
+              ROL_PERMISOS: {
+                PERMISO: true,
+              }
+            }
+          }
         }
       });
 
-      if (result.length === 0) return []
+      if (usuarios.length === 0) return [];
 
-      return result
+      return usuarios.map(usuario => ({
+        ID_USUARIO: usuario.ID_USUARIO,
+        PERSONA_ID: usuario.PERSONA_ID,
+        USERNAME: usuario.USERNAME,
+        ESTADO: usuario.ESTADO,
+        ULTIMO_ACCESO: usuario.ULTIMO_ACCESO,
+        FECHA_CREACION: usuario.FECHA_CREACION,
+        
+        PERSONA: usuario.PERSONA,
+        
+        USUARIO_ROLES: usuario.USUARIO_ROLES.map(uRol => {
+          const rol = uRol.ROL;
+          
+          const permisosAplanados = rol.ROL_PERMISOS.map(rPermiso => {
+            const permiso = rPermiso.PERMISO;
+            return {
+              ID_PERMISO: permiso.ID_PERMISO,
+              CLAVE: permiso.CLAVE,
+              NOMBRE: permiso.NOMBRE,
+              DESCRIPCION: permiso.DESCRIPCION,
+              CATEGORIA_ID: permiso.CATEGORIA_ID,
+            };
+          });
+            
+          return {
+            ID_ROL: rol.ID_ROL,
+            NOMBRE: rol.NOMBRE,
+            DESCRIPCION: rol.DESCRIPCION,
+            ESTADO: rol.ESTADO,
+            ROL_PERMISOS: permisosAplanados
+          };
+        })
+      }));
 
     } catch (error) {
-      this.databaseErrorService.handle(error)
+      this.databaseErrorService.handle(error);
     }
   }
 
@@ -95,6 +156,13 @@ export class UsuarioService {
             PUESTO: true,
             DEPARTAMENTO: true,
             EMPRESA: true,
+          },
+          USUARIO_ROLES: {
+            ROL: {
+              ROL_PERMISOS: {
+                PERMISO: true,
+              }
+            }
           }
         }
       });
@@ -104,48 +172,59 @@ export class UsuarioService {
   }
 
   async updateData(id: number, updateUsuarioDto: UpdateUsuarioDto) {
-    try {
-      const { USERNAME, ESTADO } = updateUsuarioDto;
 
-      const result = await this.entityManager.query(
-        `EXEC sp_USUARIO_ACTUALIZAR_DATOS
-          @ID_USUARIO = @0,
-          @USERNAME = @1,
-          @ESTADO = @2`,
-        [
-          id,
-          USERNAME,
-          ESTADO
-        ]
-      );
+    const { USERNAME, ESTADO, ID_ROLES } = updateUsuarioDto;
 
-      const spResult = result[0];
+    return this.entityManager.transaction(async manager => {
+      try {
+        const usuarioData = await manager.query(
+          `EXEC sp_USUARIO_ACTUALIZAR_DATOS
+            @ID_USUARIO = @0,
+            @USERNAME = @1,
+            @ESTADO = @2`,
+          [
+            id,
+            USERNAME,
+            ESTADO
+          ]
+        );
+        
+        const spResult = usuarioData[0];
 
-      if (spResult && spResult.Success === 1) {
-        return {
-          message: spResult.Message,
-          id: spResult.ID_USUARIO
-        };
+        if (spResult && spResult.Success === 0) {
+          if (spResult.Message.includes('no encontrado')) {
+            throw new NotFoundException(spResult.Message);
+          }
+          throw new ConflictException(spResult.Message);
+        }
+        
+        if (ID_ROLES !== undefined) {
+          const rolesString = this.getIdsString(ID_ROLES);
+          
+          const syncResult = await manager.query(
+            `EXEC sp_USUARIO_ROL_SINCRONIZAR @ID_USUARIO = @0, @ROLES_IDS_STRING = @1`,
+            [id, rolesString]
+          );
+
+          if (syncResult && syncResult[0].Success === 0) {
+            const resultObject = syncResult[0];
+            const errorMessage = resultObject.Message as string; 
+            throw new Error(errorMessage); 
+          }
+        }
+        
+        return { message: 'Usuario y roles actualizados.', id: id };
+
+      } catch (error) {
+        this.databaseErrorService.handle(error);
       }
-      
-      if (spResult && spResult.Success === 0) {
-        return {
-          message: spResult.Message,
-          id: spResult.ID_USUARIO
-        };
-      }
-
-      throw new Error('El procedimiento almacenado devolvió un resultado inesperado al actualizar al usuario.');
-
-    } catch (error) {
-      this.databaseErrorService.handle(error)
-    }
+    });
   }
 
-  async updatePassword(id: number, updatePasswordDto: UpdatePasswordDto): Promise<any> {
+  async updatePassword(id: number, updatePasswordDto: UpdatePasswordDto) {
     const { PASSWORD } = updatePasswordDto;
     
-    const hashedPassword = this.hashingService.hash(PASSWORD)
+    const hashedPassword = await this.hashingService.hash(PASSWORD)
 
     try {
       const result = await this.entityManager.query(
