@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { RolPermiso } from 'src/rol-permiso/entities/rol-permiso.entity';
+import { UsuarioRol } from 'src/usuario-rol/entities/usuario-rol.entity';
 
 @Entity('ROL')
 export class Rol {
@@ -18,4 +19,7 @@ export class Rol {
     // Relación Many-to-Many con PERMISO a través de RolPermiso
     @OneToMany(() => RolPermiso, rolPermiso => rolPermiso.ROL)
     ROL_PERMISOS: RolPermiso[];
+
+    @OneToMany(() => UsuarioRol, usuarioRol => usuarioRol.ROL)
+    USUARIO_ROLES: UsuarioRol[];
 }

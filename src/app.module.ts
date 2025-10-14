@@ -13,6 +13,7 @@ import { CategoriaPermisoModule } from './categoria-permiso/categoria-permiso.mo
 import { PermisoModule } from './permiso/permiso.module';
 import { RolModule } from './rol/rol.module';
 import { RolPermisoModule } from './rol-permiso/rol-permiso.module';
+import { UsuarioRolModule } from './usuario-rol/usuario-rol.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { RolPermisoModule } from './rol-permiso/rol-permiso.module';
     PermisoModule,
     RolModule,
     RolPermisoModule,
+    UsuarioRolModule,
   ],
 })
 export class AppModule {}

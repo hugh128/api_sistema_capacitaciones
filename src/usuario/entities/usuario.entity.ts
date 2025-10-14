@@ -1,8 +1,10 @@
 import { 
     Entity, PrimaryGeneratedColumn, Column, ManyToOne, 
-    JoinColumn
+    JoinColumn,
+    OneToMany
 } from 'typeorm';
 import { Persona } from 'src/persona/entities/persona.entity';
+import { UsuarioRol } from 'src/usuario-rol/entities/usuario-rol.entity';
 
 @Entity('USUARIO')
 export class Usuario {
@@ -27,9 +29,10 @@ export class Usuario {
     @Column({ name: 'FECHA_CREACION', type: 'datetime', nullable: false })
     FECHA_CREACION: Date;
     
-    //@ManyToOne(() => Persona, persona => persona.USUARIO, { eager: true })
-
     @ManyToOne(() => Persona, persona => persona.USUARIO )
     @JoinColumn({ name: 'PERSONA_ID' })
     PERSONA: Persona;
+
+    @OneToMany(() => UsuarioRol, usuarioRol => usuarioRol.USUARIO)
+    USUARIO_ROLES: UsuarioRol[];
 }

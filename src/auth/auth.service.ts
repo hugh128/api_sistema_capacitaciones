@@ -21,46 +21,70 @@ export class AuthService {
         throw new UnauthorizedException('Usuario no encontrado');
       }
 
+      if (!usuario.ESTADO) {
+        throw new UnauthorizedException('Usuario inactivo');
+      }
+
       const isPasswordValid = await this.hashingService.compare(password, usuario.PASSWORD);
 
       if (!isPasswordValid) {
         throw new UnauthorizedException('Credenciales invalidas');
       }
 
+      const rolesProyectados = usuario.USUARIO_ROLES.map(uRol => {
+        const rol = uRol.ROL;
+
+        const PERMISOS_PROYECTADOS = rol.ROL_PERMISOS.map(rPermiso => ({
+            ID: rPermiso.PERMISO.ID_PERMISO,
+            NOMBRE: rPermiso.PERMISO.NOMBRE, 
+            CLAVE: rPermiso.PERMISO.CLAVE,
+        }));
+        
+        return {
+            ID: rol.ID_ROL,
+            NOMBRE: rol.NOMBRE,
+            PERMISOS: PERMISOS_PROYECTADOS,
+        };
+    });
+      
+      const rolNames = rolesProyectados.map(r => r.NOMBRE);
+      const permisoClaves = [...new Set(
+        rolesProyectados.flatMap(r => r.PERMISOS.map(p => p.CLAVE))
+      )];
+
+
       const payload = { 
-          username: usuario.USERNAME, 
-          sub: usuario.ID_USUARIO, 
-          role: 'rrhh'
+        username: usuario.USERNAME, 
+        sub: usuario.ID_USUARIO, 
+        roles: rolNames,
+        permissions: permisoClaves
       };
 
       const token = this.jwtService.sign(payload); 
 
       const usuarioAuth = {
-        id: usuario.ID_USUARIO,
-        username: usuario.USERNAME,
-        email: usuario.PERSONA.CORREO,
-        nombre: usuario.PERSONA.NOMBRE,
-        apellido: usuario.PERSONA.APELLIDO,
-        telefono: usuario.PERSONA.TELEFONO,
-        dpi: usuario.PERSONA.DPI,
-        puesto: usuario.PERSONA.PUESTO.NOMBRE,
-        departamento: usuario.PERSONA.DEPARTAMENTO.NOMBRE,
-        roles: [
-          {
-            id: "1",
-            nombre: "RRHH",
-            permisos: ["all"],
-          },
-        ],
-        estado: usuario.ESTADO ? "activo" : "inactivo"
-      }
+        ID_USUARIO: usuario.ID_USUARIO,
+        USERNAME: usuario.USERNAME,
+        ESTADO: usuario.ESTADO,
+        
+        NOMBRE: usuario.PERSONA.NOMBRE,
+        APELLIDO: usuario.PERSONA.APELLIDO,
+        CORREO: usuario.PERSONA.CORREO,
+        TELEFONO: usuario.PERSONA.TELEFONO,
+        DPI: usuario.PERSONA.DPI,
+        
+        PUESTO_NOMBRE: usuario.PERSONA.PUESTO?.NOMBRE || null,
+        DEPARTAMENTO_NOMBRE: usuario.PERSONA.DEPARTAMENTO?.NOMBRE || null,
+        
+        ROLES: rolesProyectados,
+      };
 
-      console.log("Usuario autenticado")
-      console.log(usuarioAuth)
+      console.log("Usuario autenticado");
+      console.log(usuarioAuth);
 
       return { 
-        message: "Inicio de sesion exitoso",
-        usuario: { data: usuarioAuth, token }
+        MESSAGE: "Inicio de sesion exitoso",
+        USUARIO: { DATA: usuarioAuth, TOKEN: token } 
       };
 
     } catch (error) {
