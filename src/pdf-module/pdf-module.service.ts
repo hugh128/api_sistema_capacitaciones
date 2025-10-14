@@ -25,6 +25,8 @@ export class PdfService {
 
     //Traer documentos asociados
     const asociados = await this.docAsociadoRepo.find({ where: { DOCUMENTO: { ID_DOCUMENTO: idDocumento } } });
+    //Traer departamento
+
 
     // 3) Traer datos colaborador (ejemplo: reemplazar por consulta a tabla Usuario si aplica)
     // Aquí debes reemplazar por tu repo usuario o la relación que tengas:
