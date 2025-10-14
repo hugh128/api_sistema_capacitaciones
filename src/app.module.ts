@@ -9,15 +9,12 @@ import { UsuarioModule } from './usuario/usuario.module';
 import { AuthModule } from './auth/auth.module';
 import { DocumentoModule } from './documento/documento.module';
 import { DocumentoAsociadoModule } from './documento-asociado/documento-asociado.module';
-<<<<<<< HEAD
-import { PdfModule } from './pdf-module/pdf-module.module';
-=======
 import { CategoriaPermisoModule } from './categoria-permiso/categoria-permiso.module';
 import { PermisoModule } from './permiso/permiso.module';
 import { RolModule } from './rol/rol.module';
 import { RolPermisoModule } from './rol-permiso/rol-permiso.module';
 import { UsuarioRolModule } from './usuario-rol/usuario-rol.module';
->>>>>>> ad60ea46afde75a44c5799e814d5ef3e356e2a66
+import { PdfModule } from './pdf-module/pdf-module.module';
 
 @Module({
   imports: [
@@ -50,17 +47,16 @@ import { UsuarioRolModule } from './usuario-rol/usuario-rol.module';
     PersonaModule,
     UsuarioModule,
     AuthModule,
-    DocumentoModule,
+    DocumentoModule,   
     DocumentoAsociadoModule,
-<<<<<<< HEAD
-    PdfModule,
-=======
+
     CategoriaPermisoModule,
     PermisoModule,
     RolModule,
     RolPermisoModule,
     UsuarioRolModule,
->>>>>>> ad60ea46afde75a44c5799e814d5ef3e356e2a66
+    PdfModule,
+    
   ],
 })
 export class AppModule {}
