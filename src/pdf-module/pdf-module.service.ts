@@ -24,7 +24,7 @@ export class PdfService {
     if (!documento) throw new Error('Documento no encontrado');
 
     //Traer documentos asociados
-    const asociados = await this.docAsociadoRepo.find({ where: { DOCUMENTO: { ID_DOCUMENTO: idDocumento } } });
+    const asociados = await this.docAsociadoRepo.find({ where: { DOCUMENTO_PADRE: { ID_DOCUMENTO: idDocumento } } });
     //Traer departamento
 
 
