@@ -15,6 +15,9 @@ export class Documento {
     @Column({ name: 'NOMBRE_DOCUMENTO', length: 255 })
     NOMBRE_DOCUMENTO: string;
 
+    @Column({ name: 'VERSION', type: 'int', default: 1, nullable: false })
+    VERSION: number;
+
     @Column({ name: 'APROBACION', type: 'date', nullable: true })
     APROBACION: Date | null;
 
