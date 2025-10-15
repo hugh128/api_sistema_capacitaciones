@@ -35,10 +35,11 @@ export class DocumentoService {
 
   async findAll(): Promise<Documento[] | []> {
     try {
-      const result = await this.documentoRepository.find();
-      if (result.length === 0) return []
-      return result
-
+      return this.documentoRepository.find({
+        relations: {
+          DOCUMENTOS_ASOCIADOS: true
+        }
+      });
     } catch (error) {
       this.databaseErrorService.handle(error)
     }
@@ -60,7 +61,7 @@ export class DocumentoService {
       const { CODIGO, TIPO_DOCUMENTO, NOMBRE_DOCUMENTO, APROBACION, ESTATUS } = updateDocumentoDto;
 
       const result = await this.entityManager.query(
-        `EXEC sp_DOCUMENTO_CAMBIO 
+        `EXEC sp_DOCUMENTO_ACTUALIZAR
           @ID_DOCUMENTO = @0,
           @CODIGO = @1,
           @TIPO_DOCUMENTO = @2,

@@ -1,34 +1,26 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { DocumentoAsociado } from 'src/documento-asociado/entities/documento-asociado.entity';
 
 @Entity('DOCUMENTO')
 export class Documento {
     @PrimaryGeneratedColumn({ name: 'ID_DOCUMENTO' })
     ID_DOCUMENTO: number;
 
-    @Column({ name: 'CODIGO', type: 'varchar', length: 20, nullable: false, unique: true })
+    @Column({ name: 'CODIGO', length: 20, unique: true })
     CODIGO: string;
 
-    @Column({ name: 'TIPO_DOCUMENTO', type: 'varchar', length: 10, nullable: false })
+    @Column({ name: 'TIPO_DOCUMENTO', length: 10 })
     TIPO_DOCUMENTO: string;
 
-    @Column({ name: 'NOMBRE_DOCUMENTO', type: 'varchar', length: 255, nullable: false })
+    @Column({ name: 'NOMBRE_DOCUMENTO', length: 255 })
     NOMBRE_DOCUMENTO: string;
 
     @Column({ name: 'APROBACION', type: 'date', nullable: true })
-    APROBACION: Date;
-    
-    @Column({ name: 'ESTATUS', type: 'bit', default: 1, nullable: false })
+    APROBACION: Date | null;
+
+    @Column({ name: 'ESTATUS', type: 'bit', default: true })
     ESTATUS: boolean;
 
+    @OneToMany(() => DocumentoAsociado, (hijo) => hijo.DOCUMENTO_PADRE)
+    DOCUMENTOS_ASOCIADOS: DocumentoAsociado[];
 }
-/**
- CREATE TABLE DOCUMENTO(
-	ID_DOCUMENTO INT IDENTITY (1,1) PRIMARY KEY,
-	CODIGO VARCHAR(20) NOT NULL,
-	TIPO_DOCUMENTO VARCHAR(10) NOT NULL,
-	NOMBRE_DOCUMENTO VARCHAR(255) NOT NULL,
-	APROBACION DATE NULL,
-	ESTATUS BIT NOT NULL DEFAULT 1,
-	CONSTRAINT UQ_CODIGO UNIQUE (CODIGO)
-);
-*/
