@@ -18,14 +18,15 @@ export class DocumentoAsociadoService {
   // CREATE
   async create(createDto: CreateDocumentoAsociadoDto) {
     try {
-      const { CODIGO, NOMBRE_DOCUMENTO, ESTATUS } = createDto;
+      const { CODIGO, NOMBRE_DOCUMENTO, DOCUMENTO_ID, ESTATUS } = createDto;
 
       const result = await this.entityManager.query(
         `EXEC sp_DOCUMENTO_ASOCIADO_ALTA 
           @CODIGO = @0, 
           @NOMBRE_DOCUMENTO = @1, 
-          @ESTATUS = @2`,
-        [CODIGO, NOMBRE_DOCUMENTO, ESTATUS ?? 1],
+          @DOCUMENTO_ID = @2,
+          @ESTATUS = @3`,
+        [CODIGO, NOMBRE_DOCUMENTO, DOCUMENTO_ID, ESTATUS ?? 1],
       );
 
       if (result?.length && result[0]?.ID_DOC_ASOCIADO) {
