@@ -6,8 +6,8 @@ export class Empresa {
     @PrimaryGeneratedColumn({ name: 'ID_EMPRESA' })
     ID_EMPRESA: number;
 
-    @Column({ name: 'NOMBRE', type: 'nvarchar', length: 200, nullable: false })
-    NOMBRE: string;
+@Column({ name: 'NOMBRE', type: 'nvarchar', length: 200, nullable: false, default: 'Nombre genérico' })
+NOMBRE: string;
 
     @Column({ name: 'DIRECCION', type: 'nvarchar', length: 255, nullable: true })
     DIRECCION: string;
