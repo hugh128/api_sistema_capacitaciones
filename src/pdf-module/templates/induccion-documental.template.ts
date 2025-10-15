@@ -195,7 +195,7 @@ export async function generarInduccionDocumentalPdf(
   currentStartY = result.endY;
 
 // ===for(dep of Departamentos)
-for (let i=0; i < 10; i++) {
+for (let i=0; i < 1; i++) {
   // --- Tabla tipo “Documento n” (encabezado de bloque) ---
   const result2 = await drawTable({
     pdfDoc,
