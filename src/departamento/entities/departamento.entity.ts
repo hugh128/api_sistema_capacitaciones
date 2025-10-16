@@ -6,6 +6,9 @@ export class Departamento {
     @PrimaryGeneratedColumn({ name: 'ID_DEPARTAMENTO' })
     ID_DEPARTAMENTO: number;
 
+    @Column({ name: 'CODIGO', type: 'nvarchar', length: 100, unique: true, nullable: false })
+    CODIGO: string;
+
     @Column({ name: 'NOMBRE', type: 'nvarchar', length: 100, nullable: false })
     NOMBRE: string;
 

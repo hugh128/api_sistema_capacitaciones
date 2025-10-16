@@ -16,14 +16,16 @@ export class DepartamentoService {
 
   async create(createDepartamentoDto: CreateDepartamentoDto) {
     try {
-      const { NOMBRE, DESCRIPCION, ESTADO } = createDepartamentoDto;
+	  const { CODIGO, NOMBRE, DESCRIPCION, ESTADO } = createDepartamentoDto;
 
       const result = await this.entityManager.query(
         `EXEC sp_DEPARTAMENTO_ALTA 
-            @NOMBRE = @0, 
-            @DESCRIPCION = @1, 
-            @ESTADO = @2`, 
+          @CODIGO = @0,
+          @NOMBRE = @1, 
+          @DESCRIPCION = @2, 
+          @ESTADO = @3`, 
         [
+          CODIGO,
           NOMBRE,
           DESCRIPCION,
           ESTADO
@@ -67,16 +69,18 @@ export class DepartamentoService {
 
   async update(id: number, updateDepartamentoDto: UpdateDepartamentoDto) {
     try {
-      const { NOMBRE, DESCRIPCION, ESTADO } = updateDepartamentoDto;
+	  const { CODIGO, NOMBRE, DESCRIPCION, ESTADO } = updateDepartamentoDto;
 
       const result = await this.entityManager.query(
         `EXEC sp_DEPARTAMENTO_ACTUALIZAR
             @ID_DEPARTAMENTO = @0,
-            @NOMBRE = @1,
-            @DESCRIPCION = @2,
-            @ESTADO = @3`,
+            @CODIGO = @1,
+            @NOMBRE = @2,
+            @DESCRIPCION = @3,
+            @ESTADO = @4`,
         [
           id,
+          CODIGO,
           NOMBRE,
           DESCRIPCION,
           ESTADO
