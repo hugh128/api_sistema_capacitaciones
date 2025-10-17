@@ -16,11 +16,26 @@ export class DocumentoService {
 
   async create(createDocumentoDto: CreateDocumentoDto) {
     try{
-      const { CODIGO,TIPO_DOCUMENTO,NOMBRE_DOCUMENTO,APROBACION,ESTATUS } = createDocumentoDto;
+      const { CODIGO, TIPO_DOCUMENTO, NOMBRE_DOCUMENTO, APROBACION, VERSION, ESTATUS, DEPARTAMENTO_CODIGO } = createDocumentoDto;
 
       const result = await this.entityManager.query(
-        'EXEC sp_DOCUMENTO_ALTA @CODIGO = @0, @TIPO_DOCUMENTO = @1, @NOMBRE_DOCUMENTO = @2, @APROBACION = @3, @ESTATUS = @4',
-        [CODIGO, TIPO_DOCUMENTO, NOMBRE_DOCUMENTO, APROBACION, ESTATUS] 
+        `EXEC sp_DOCUMENTO_ALTA
+          @CODIGO = @0,
+          @TIPO_DOCUMENTO = @1,
+          @NOMBRE_DOCUMENTO = @2,
+          @APROBACION = @3,
+          @VERSION = @4,
+          @ESTATUS = @5,
+          @DEPARTAMENTO_CODIGO = @6`,
+        [
+          CODIGO,
+          TIPO_DOCUMENTO,
+          NOMBRE_DOCUMENTO,
+          APROBACION,
+          VERSION,
+          ESTATUS,
+          DEPARTAMENTO_CODIGO
+        ] 
       );
       if(result && result.length > 0 && result[0].ID_DOCUMENTO !== undefined){
         return result;
@@ -58,7 +73,7 @@ export class DocumentoService {
   }
   async update(id: number, updateDocumentoDto: UpdateDocumentoDto) {
     try {
-      const { CODIGO, TIPO_DOCUMENTO, NOMBRE_DOCUMENTO, APROBACION, ESTATUS } = updateDocumentoDto;
+      const { CODIGO, TIPO_DOCUMENTO, NOMBRE_DOCUMENTO, APROBACION, VERSION, ESTATUS, DEPARTAMENTO_CODIGO } = updateDocumentoDto;
 
       const result = await this.entityManager.query(
         `EXEC sp_DOCUMENTO_ACTUALIZAR
@@ -67,8 +82,19 @@ export class DocumentoService {
           @TIPO_DOCUMENTO = @2,
           @NOMBRE_DOCUMENTO = @3,
           @APROBACION = @4,
-          @ESTATUS = @5`,
-        [id, CODIGO, TIPO_DOCUMENTO, NOMBRE_DOCUMENTO, APROBACION, ESTATUS],
+          @VERSION = @5,
+          @ESTATUS = @6,
+          @DEPARTAMENTO_CODIGO = @7`,
+        [
+          id,
+          CODIGO,
+          TIPO_DOCUMENTO,
+          NOMBRE_DOCUMENTO,
+          APROBACION,
+          VERSION,
+          ESTATUS,
+          DEPARTAMENTO_CODIGO
+        ],
       );
 
       return {

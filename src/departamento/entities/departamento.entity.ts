@@ -1,4 +1,5 @@
 import { Puesto } from 'src/puesto/entities/puesto.entity';
+import { Documento } from 'src/documento/entities/documento.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity('DEPARTAMENTO')
@@ -23,4 +24,7 @@ export class Departamento {
 
     @OneToMany(() => Puesto, puesto => puesto.DEPARTAMENTO)
     PUESTOS: Puesto[];
+
+    @OneToMany(() => Documento, (documento) => documento.DEPARTAMENTO)
+    DOCUMENTOS: Documento[];
 }
