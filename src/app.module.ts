@@ -18,6 +18,9 @@ import { PdfModule } from './pdf-module/pdf-module.module';
 import { PlanCapacitacionModule } from './plan-capacitacion/plan-capacitacion.module';
 import { DocumentoPlanModule } from './documento-plan/documento-plan.module';
 import { PlanPuestoModule } from './plan-puesto/plan-puesto.module';
+import { CapacitacionModule } from './capacitacion/capacitacion.module';
+import { TipoCapacitacionModule } from './tipo-capacitacion/tipo-capacitacion.module';
+
 
 @Module({
   imports: [
@@ -52,7 +55,6 @@ import { PlanPuestoModule } from './plan-puesto/plan-puesto.module';
     AuthModule,
     DocumentoModule,   
     DocumentoAsociadoModule,
-
     CategoriaPermisoModule,
     PermisoModule,
     RolModule,
@@ -62,6 +64,8 @@ import { PlanPuestoModule } from './plan-puesto/plan-puesto.module';
     PlanCapacitacionModule,
     DocumentoPlanModule,
     PlanPuestoModule,
+    CapacitacionModule,
+    TipoCapacitacionModule,
     
   ],
 })

@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { RolPermiso } from 'src/rol-permiso/entities/rol-permiso.entity';
 import { UsuarioRol } from 'src/usuario-rol/entities/usuario-rol.entity';
+import { Capacitacion } from 'src/capacitacion/entities/capacitacion.entity';
 
 @Entity('ROL')
 export class Rol {
@@ -22,4 +23,9 @@ export class Rol {
 
     @OneToMany(() => UsuarioRol, usuarioRol => usuarioRol.ROL)
     USUARIO_ROLES: UsuarioRol[];
+
+    @OneToMany(()=> Capacitacion, capacitacion => capacitacion.CAPACITADOR_ID)
+    CAPACITACIONES: Capacitacion[];
+
+
 }

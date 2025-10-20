@@ -1,6 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Documento } from 'src/documento/entities/documento.entity';
-
+import { Capacitacion } from 'src/capacitacion/entities/capacitacion.entity';
 @Entity('DOCUMENTO_ASOCIADO')
 export class DocumentoAsociado {
     @PrimaryGeneratedColumn({ name: 'ID_DOC_ASOCIADO' })
@@ -27,4 +27,7 @@ export class DocumentoAsociado {
     @ManyToOne(() => Documento, (padre) => padre.DOCUMENTOS_ASOCIADOS)
     @JoinColumn({ name: 'DOCUMENTO_ID' })
     DOCUMENTO_PADRE: Documento;
+
+    @OneToMany(() => Capacitacion, capacitacion => capacitacion.DOCUMENTO_ASOCIADO)
+    DOCUMENTOS_ASOCIADOS: Capacitacion[];
 }
