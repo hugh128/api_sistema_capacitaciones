@@ -41,7 +41,7 @@ export class PlanCapacitacionService {
             @TIPO = @2,
             @DEPARTAMENTO_ID = @3,
             @APLICA_TODOS_PUESTOS_DEP = @4,
-            ESTADO = @5
+            @ESTADO = @5
             `,
           [
             NOMBRE,
@@ -92,7 +92,7 @@ export class PlanCapacitacionService {
 
   async findAll() {
     try {
-      return await this.planCapacitacionRepository.find({
+      const planes = await this.planCapacitacionRepository.find({
         relations: {
           DEPARTAMENTO: true,
           PLANES_PUESTOS: {
@@ -103,6 +103,22 @@ export class PlanCapacitacionService {
           }
         }
       });
+
+      return planes.map(plan => ({
+        ID_PLAN: plan.ID_PLAN,
+        NOMBRE: plan.NOMBRE,
+        DESCRIPCION: plan.DESCRIPCION,
+        TIPO: plan.TIPO,
+        DEPARTAMENTO_ID: plan.DEPARTAMENTO_ID,
+        APLICA_TODOS_PUESTOS_DEP: plan.APLICA_TODOS_PUESTOS_DEP,
+        FECHA_CREACION: plan.FECHA_CREACION,
+        ESTADO: plan.ESTADO,
+        DEPARTAMENTO: plan.DEPARTAMENTO,
+        
+        PLANES_PUESTOS: plan.PLANES_PUESTOS.map(pp => pp.PUESTO),
+        
+        DOCUMENTOS_PLANES: plan.DOCUMENTOS_PLANES.map(dp => dp.DOCUMENTO)
+      }));
 
     } catch (error) {
       this.databaseErrorService.handle(error);
@@ -150,7 +166,7 @@ export class PlanCapacitacionService {
             @TIPO = @3,
             @DEPARTAMENTO_ID = @4,
             @APLICA_TODOS_PUESTOS_DEP = @5,
-            ESTADO = @6
+            @ESTADO = @6
             `,
           [
             id,
