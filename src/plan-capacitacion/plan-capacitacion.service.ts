@@ -203,9 +203,9 @@ export class PlanCapacitacionService {
 
         const documentosString = this.getIdsString(ID_DOCUMENTOS || []);
         await manager.query(
-            `EXEC sp_PLAN_PUESTO_SINCRONIZAR
+            `EXEC sp_DOCUMENTO_PLAN_SINCRONIZAR
               @ID_PLAN = @0,
-              @PUESTO_IDS_STRING = @1`,
+              @DOCUMENTO_IDS_STRING = @1`,
             [
               id,
               documentosString
