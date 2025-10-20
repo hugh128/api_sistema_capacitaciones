@@ -6,8 +6,10 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  const FRONT_PORT = process.env.FRONT_PORT || '3000';
+
   app.enableCors({
-    origin: 'http://localhost:3000', 
+    origin: `http://localhost:${FRONT_PORT}`,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });

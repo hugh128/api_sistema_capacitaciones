@@ -18,15 +18,24 @@ export class DocumentoAsociadoService {
   // CREATE
   async create(createDto: CreateDocumentoAsociadoDto) {
     try {
-      const { CODIGO, NOMBRE_DOCUMENTO, DOCUMENTO_ID, ESTATUS } = createDto;
+      const { CODIGO, NOMBRE_DOCUMENTO, FECHA_APROBACION, VERSION, ESTATUS , DOCUMENTO_ID } = createDto;
 
       const result = await this.entityManager.query(
         `EXEC sp_DOCUMENTO_ASOCIADO_ALTA 
-          @CODIGO = @0, 
+          @CODIGO = @0,
           @NOMBRE_DOCUMENTO = @1, 
-          @DOCUMENTO_ID = @2,
-          @ESTATUS = @3`,
-        [CODIGO, NOMBRE_DOCUMENTO, DOCUMENTO_ID, ESTATUS ?? 1],
+          @FECHA_APROBACION = @2,
+          @VERSION = @3,
+          @ESTATUS = @4,
+          @DOCUMENTO_ID = @5`,
+        [
+          CODIGO,
+          NOMBRE_DOCUMENTO,
+          FECHA_APROBACION,
+          VERSION,
+          ESTATUS,
+          DOCUMENTO_ID,
+        ],
       );
 
       if (result?.length && result[0]?.ID_DOC_ASOCIADO) {
@@ -71,15 +80,24 @@ export class DocumentoAsociadoService {
   // UPDATE 
   async update(id: number, updateDto: UpdateDocumentoAsociadoDto) {
     try {
-      const { CODIGO, NOMBRE_DOCUMENTO, ESTATUS } = updateDto;
+      const { CODIGO, NOMBRE_DOCUMENTO, FECHA_APROBACION, VERSION, ESTATUS } = updateDto;
 
       const result = await this.entityManager.query(
         `EXEC sp_DOCUMENTO_ASOCIADO_ACTUALIZAR 
           @ID_DOC_ASOCIADO = @0,
           @CODIGO = @1,
           @NOMBRE_DOCUMENTO = @2,
-          @ESTATUS = @3`,
-        [id, CODIGO, NOMBRE_DOCUMENTO, ESTATUS ?? 1],
+          @FECHA_APROBACION = @3,
+          @VERSION = @4,
+          @ESTATUS = @5`,
+        [
+          id,
+          CODIGO,
+          NOMBRE_DOCUMENTO,
+          FECHA_APROBACION,
+          VERSION,
+          ESTATUS
+        ],
       );
 
       return {

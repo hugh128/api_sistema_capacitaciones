@@ -15,8 +15,12 @@ import { RolModule } from './rol/rol.module';
 import { RolPermisoModule } from './rol-permiso/rol-permiso.module';
 import { UsuarioRolModule } from './usuario-rol/usuario-rol.module';
 import { PdfModule } from './pdf-module/pdf-module.module';
+import { PlanCapacitacionModule } from './plan-capacitacion/plan-capacitacion.module';
+import { DocumentoPlanModule } from './documento-plan/documento-plan.module';
+import { PlanPuestoModule } from './plan-puesto/plan-puesto.module';
 import { CapacitacionModule } from './capacitacion/capacitacion.module';
 import { TipoCapacitacionModule } from './tipo-capacitacion/tipo-capacitacion.module';
+
 
 @Module({
   imports: [
@@ -35,7 +39,7 @@ import { TipoCapacitacionModule } from './tipo-capacitacion/tipo-capacitacion.mo
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true,
+        synchronize: false,
         extra: {
           encrypt: true,
           trustServerCertificate: true,
@@ -51,13 +55,15 @@ import { TipoCapacitacionModule } from './tipo-capacitacion/tipo-capacitacion.mo
     AuthModule,
     DocumentoModule,   
     DocumentoAsociadoModule,
-
     CategoriaPermisoModule,
     PermisoModule,
     RolModule,
     RolPermisoModule,
     UsuarioRolModule,
     PdfModule,
+    PlanCapacitacionModule,
+    DocumentoPlanModule,
+    PlanPuestoModule,
     CapacitacionModule,
     TipoCapacitacionModule,
     

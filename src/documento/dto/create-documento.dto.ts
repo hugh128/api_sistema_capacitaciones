@@ -1,4 +1,4 @@
-import{ IsString, IsNotEmpty, IsDateString, IsOptional, MaxLength } from 'class-validator';
+import{ IsString, IsNotEmpty, IsDateString, IsOptional, MaxLength, IsInt } from 'class-validator';
 
 export class CreateDocumentoDto {
     @IsString()
@@ -20,6 +20,18 @@ export class CreateDocumentoDto {
     @IsOptional()
     APROBACION?: Date;
 
+    @IsNotEmpty({ message: 'La versión es obligatoria.' })
+    @IsInt({ message: 'La versión debe ser un número entero.' })
+    VERSION: number;
+
     @IsNotEmpty({ message: 'El estatus del documento es obligatorio.' })
-    ESTATUS?: boolean;
+    @IsString({ message: 'El estatus debe ser una cadena de texto.' })
+    @MaxLength(20, { message: 'El estatus no puede exceder los 20 caracteres.' })
+    ESTATUS: string;
+
+    @IsNotEmpty({ message: 'El código de departamento es obligatorio.' })
+    @IsString({ message: 'El código de departamento debe ser una cadena de texto.' })
+    @MaxLength(20, { message: 'El código de departamento no puede exceder los 20 caracteres.' })
+    DEPARTAMENTO_CODIGO: string;
+
 }

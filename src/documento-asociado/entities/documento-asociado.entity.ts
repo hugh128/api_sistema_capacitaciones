@@ -12,8 +12,14 @@ export class DocumentoAsociado {
     @Column({ name: 'NOMBRE_DOCUMENTO', length: 255 })
     NOMBRE_DOCUMENTO: string;
 
-    @Column({ name: 'ESTATUS', type: 'bit', default: true })
-    ESTATUS: boolean;
+    @Column({ name: 'FECHA_APROBACION', type: 'date', nullable: true })
+    FECHA_APROBACION: Date | null;
+
+    @Column({ name: 'VERSION', default: 1 })
+    VERSION: number;
+
+    @Column({ name: 'ESTATUS', length: 20 })
+    ESTATUS: string;
     
     @Column({ name: 'DOCUMENTO_ID', nullable: true })
     DOCUMENTO_ID: number; 

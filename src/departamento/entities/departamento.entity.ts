@@ -1,10 +1,16 @@
 import { Puesto } from 'src/puesto/entities/puesto.entity';
+import { Documento } from 'src/documento/entities/documento.entity';
+import { PlanCapacitacion } from 'src/plan-capacitacion/entities/plan-capacitacion.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Capacitacion } from 'src/capacitacion/entities/capacitacion.entity';
+
 @Entity('DEPARTAMENTO')
 export class Departamento {
     @PrimaryGeneratedColumn({ name: 'ID_DEPARTAMENTO' })
     ID_DEPARTAMENTO: number;
+
+    @Column({ name: 'CODIGO', type: 'nvarchar', length: 100, unique: true, nullable: false })
+    CODIGO: string;
 
     @Column({ name: 'NOMBRE', type: 'nvarchar', length: 100, nullable: false })
     NOMBRE: string;
@@ -21,6 +27,15 @@ export class Departamento {
     @OneToMany(() => Puesto, puesto => puesto.DEPARTAMENTO)
     PUESTOS: Puesto[];
 
+
+    @OneToMany(() => Documento, (documento) => documento.DEPARTAMENTO)
+    DOCUMENTOS: Documento[];
+
+    @OneToMany(() => PlanCapacitacion, (planCapacitacion) => planCapacitacion.DEPARTAMENTO)
+    PLANES_CAPACITACION: PlanCapacitacion[];
+
+
     @OneToMany(()=> Capacitacion, capacitacion=>capacitacion.DEPARTAMENTO)
     DEPARTAMENTOS: Capacitacion[];
+
 }
