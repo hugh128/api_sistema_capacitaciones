@@ -15,6 +15,8 @@ import { RolModule } from './rol/rol.module';
 import { RolPermisoModule } from './rol-permiso/rol-permiso.module';
 import { UsuarioRolModule } from './usuario-rol/usuario-rol.module';
 import { PdfModule } from './pdf-module/pdf-module.module';
+import { CapacitacionModule } from './capacitacion/capacitacion.module';
+import { TipoCapacitacionModule } from './tipo-capacitacion/tipo-capacitacion.module';
 
 @Module({
   imports: [
@@ -56,6 +58,8 @@ import { PdfModule } from './pdf-module/pdf-module.module';
     RolPermisoModule,
     UsuarioRolModule,
     PdfModule,
+    CapacitacionModule,
+    TipoCapacitacionModule,
     
   ],
 })
