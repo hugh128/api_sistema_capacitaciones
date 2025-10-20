@@ -3,9 +3,6 @@ import { TipoCapacitacion } from "src/tipo-capacitacion/entities/tipo-capacitaci
 import { Rol } from "src/rol/entities/rol.entity";
 import { DocumentoAsociado } from "src/documento-asociado/entities/documento-asociado.entity";
 import { Departamento } from "src/departamento/entities/departamento.entity";
-import { Documento } from "src/documento/entities/documento.entity";
-
-
 
 @Entity('CAPACITACION')
 export class Capacitacion{
