@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProgramaDetalleDto } from './dto/create-programa-detalle.dto';
 import { UpdateProgramaDetalleDto } from './dto/update-programa-detalle.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -74,8 +74,47 @@ export class ProgramaDetalleService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} programaDetalle`;
+  async findOne(id: number) {
+    try {
+      const programaDetalles = await this.programaDetalleService.find({
+        relations: {
+          DEPARTAMENTO_RELACIONES: {
+            DEPARTAMENTO: true
+          }
+        },
+        where: {
+          PROGRAMA_ID: id
+        }
+      })
+
+      if (!programaDetalles || programaDetalles.length === 0) {
+        throw new NotFoundException(`Detalle del programa con ID ${id} no encontrado.`);
+      }
+
+
+      const formattedDetails = programaDetalles.map((detalle) => ({
+        ID_DETALLE: detalle.ID_DETALLE,
+        NOMBRE: detalle.NOMBRE,
+        CATEGORIA_CAPACITACION: detalle.CATEGORIA_CAPACITACION,
+        TIPO_CAPACITACION: detalle.TIPO_CAPACITACION,
+        APLICA_TODOS_DEPARTAMENTOS: detalle.APLICA_TODOS_DEPARTAMENTOS,
+        FECHA_PROGRAMADA: detalle.FECHA_PROGRAMADA,
+        ESTADO: detalle.ESTADO,
+        PROGRAMA_ID: detalle.PROGRAMA_ID,
+        DEPARTAMENTO_RELACIONES: detalle.DEPARTAMENTO_RELACIONES.map((rel) => ({
+          ID_DEPARTAMENTO: rel.DEPARTAMENTO.ID_DEPARTAMENTO,
+          CODIGO: rel.DEPARTAMENTO.CODIGO,
+          NOMBRE: rel.DEPARTAMENTO.NOMBRE,
+          DESCRIPCION: rel.DEPARTAMENTO.DESCRIPCION,
+          ESTADO: rel.DEPARTAMENTO.ESTADO,
+          FECHA_CREACION: rel.DEPARTAMENTO.FECHA_CREACION,
+        })),
+      }));
+
+      return formattedDetails;
+    } catch (error) {
+      this.databaseErrorService.handle(error);
+    }
   }
 
   update(id: number, updateProgramaDetalleDto: UpdateProgramaDetalleDto) {

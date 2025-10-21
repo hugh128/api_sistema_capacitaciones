@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProgramaCapacitacionDto } from './dto/create-programa-capacitacion.dto';
 import { UpdateProgramaCapacitacionDto } from './dto/update-programa-capacitacion.dto';
 import { EntityManager, Repository } from 'typeorm';
@@ -64,6 +64,9 @@ export class ProgramaCapacitacionService {
             },
           },
         },
+        order: {
+          ID_PROGRAMA: 'DESC',
+        },
       });
 
       const formatted = programas.map((programa) => ({
@@ -82,8 +85,39 @@ export class ProgramaCapacitacionService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} programaCapacitacion`;
+  async findOne(id: number) {
+    try {
+      const programa = await this.programaCapacitacionRepository.findOne({
+        relations: {
+          PROGRAMA_DETALLES: {
+            DEPARTAMENTO_RELACIONES: {
+              DEPARTAMENTO: true,
+            }
+          }
+        },
+        where: {
+          ID_PROGRAMA: id
+        },
+      })
+
+      if (!programa) {
+        throw new NotFoundException(`Programa de capacitacion con ID ${id} no encontrado.`);
+      }
+
+      const formattedProgram = {
+        ...programa,
+        PROGRAMA_DETALLES: programa.PROGRAMA_DETALLES.map((detalle) => ({
+          ...detalle,
+          DEPARTAMENTO_RELACIONES: detalle.DEPARTAMENTO_RELACIONES.map(
+            (rel) => rel.DEPARTAMENTO
+          ),
+        })),
+      };
+
+      return formattedProgram;
+    } catch (error) {
+      this.databaseErrorService.handle(error);
+    }
   }
 
   async update(id: number, updateProgramaCapacitacionDto: UpdateProgramaCapacitacionDto) {
