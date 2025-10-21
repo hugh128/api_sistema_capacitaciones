@@ -20,6 +20,9 @@ import { DocumentoPlanModule } from './documento-plan/documento-plan.module';
 import { PlanPuestoModule } from './plan-puesto/plan-puesto.module';
 import { CapacitacionModule } from './capacitacion/capacitacion.module';
 import { TipoCapacitacionModule } from './tipo-capacitacion/tipo-capacitacion.module';
+import { ProgramaCapacitacionModule } from './programa-capacitacion/programa-capacitacion.module';
+import { ProgramaDetalleModule } from './programa-detalle/programa-detalle.module';
+import { ProgramaDetalleDepartamentoModule } from './programa-detalle-departamento/programa-detalle-departamento.module';
 
 
 @Module({
@@ -66,6 +69,9 @@ import { TipoCapacitacionModule } from './tipo-capacitacion/tipo-capacitacion.mo
     PlanPuestoModule,
     CapacitacionModule,
     TipoCapacitacionModule,
+    ProgramaCapacitacionModule,
+    ProgramaDetalleModule,
+    ProgramaDetalleDepartamentoModule,
     
   ],
 })

@@ -3,6 +3,7 @@ import { Documento } from 'src/documento/entities/documento.entity';
 import { PlanCapacitacion } from 'src/plan-capacitacion/entities/plan-capacitacion.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Capacitacion } from 'src/capacitacion/entities/capacitacion.entity';
+import { ProgramaDetalleDepartamento } from 'src/programa-detalle-departamento/entities/programa-detalle-departamento.entity';
 
 @Entity('DEPARTAMENTO')
 export class Departamento {
@@ -34,8 +35,9 @@ export class Departamento {
     @OneToMany(() => PlanCapacitacion, (planCapacitacion) => planCapacitacion.DEPARTAMENTO)
     PLANES_CAPACITACION: PlanCapacitacion[];
 
-
     @OneToMany(()=> Capacitacion, capacitacion=>capacitacion.DEPARTAMENTO)
     DEPARTAMENTOS: Capacitacion[];
 
+    @OneToMany(() => ProgramaDetalleDepartamento, (relacion) => relacion.DEPARTAMENTO)
+    PROGRAMA_DETALLE_RELACIONES: ProgramaDetalleDepartamento[];
 }

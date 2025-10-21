@@ -194,12 +194,6 @@ export class PlanCapacitacionService {
               puestosString
             ]
         );
-        
-/*         if (syncPlanResult && syncPlanResult[0].Success === 0) {
-          const resultObject = syncPlanResult[0];
-          const errorMessage = resultObject.Message as string; 
-          throw new Error(errorMessage); 
-        } */
 
         const documentosString = this.getIdsString(ID_DOCUMENTOS || []);
         await manager.query(
