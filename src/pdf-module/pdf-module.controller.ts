@@ -5,7 +5,9 @@ import type { Response } from 'express';
 
 @Controller('pdf-module')
 export class PdfController {
-  constructor(private readonly pdfService: PdfService) {}
+  constructor(private readonly pdfService: PdfService)
+  
+  {}
 
   @Get('induccion/:idDocumento')
   async generarInduccion(@Param('idDocumento') idDocumento: number, @Res() res: Response) {
@@ -13,6 +15,16 @@ export class PdfController {
     res.set({
       'Content-Type': 'application/pdf',
       'Content-Disposition': `attachment; filename="induccion_${idDocumento}.pdf"`,
+    });
+    file.getStream().pipe(res);
+  }
+
+  @Get('asistencia/:idDocumento')
+  async generarAsistencia(@Param('idDocumento') idDocumento: number, @Res() res: Response) {
+    const file = await this.pdfService.generarListadoAsistencia(idDocumento);
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="asistencia_${idDocumento}.pdf"`,
     });
     file.getStream().pipe(res);
   }

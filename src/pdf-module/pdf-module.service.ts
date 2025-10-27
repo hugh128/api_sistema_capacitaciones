@@ -10,12 +10,15 @@ import { join } from 'path';
 import * as fs from 'fs';
 import { Persona } from 'src/persona/entities/persona.entity';
 import { Puesto } from 'src/puesto/entities/puesto.entity';
+import { colaboradorCapacitado, documentoPadre, documentosAsociados, formatoAsistencia, generarListadoAsistenciaPdf } from './templates/listado-asistencia.template';
+import { CharsetToEncoding } from 'mysql2';
 
 @Injectable()
 export class PdfService {
   constructor(
     @InjectRepository(Documento) private readonly documentoRepo: Repository<Documento>,
     @InjectRepository(DocumentoAsociado) private readonly docAsociadoRepo: Repository<DocumentoAsociado>,
+    
   ) {}
 
   async generarInduccionDocumental(idDocumento: number): Promise<StreamableFile> {
@@ -67,6 +70,125 @@ export class PdfService {
 
     //Generar buffer
     const pdfBuffer = await generarInduccionDocumentalPdf(datos);
+
+    // Guardar temporal y devolver como StreamableFile
+    const tmpDir = join(process.cwd(), 'temp');
+    if (!existsSync(tmpDir)) mkdirSync(tmpDir, { recursive: true });
+    const outPath = join(tmpDir, `induccion_${idDocumento}.pdf`);
+    await new Promise<void>((resolve, reject) => {
+      const w = createWriteStream(outPath);
+      w.on('finish', () => resolve());
+      w.on('error', (e) => reject(e));
+      w.write(Buffer.from(pdfBuffer));
+      w.end();
+    });
+
+    return new StreamableFile(fs.createReadStream(outPath));
+  }
+
+   async generarListadoAsistencia(idDocumento: number): Promise<StreamableFile> {
+
+    const docPadre : documentoPadre={
+      codigoDocumento: '0000',
+      versionDocumento: "1111"
+    }
+
+
+    const docAsociado : documentosAsociados[] =[
+      {codigoDocumento: "AOC1"},
+      {codigoDocumento: "AOC2"},
+      {codigoDocumento: "AOC3"},
+      {codigoDocumento: "AOC4"},
+      {codigoDocumento: "AOC5"}
+    ] 
+
+    const personaCapacitada : colaboradorCapacitado[] =
+    [
+      {nombre: 'Jose Hernandez Lopez'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'},
+      {nombre: 'Jose Hernandez Lopez'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'},
+      {nombre: 'Jose Hernandez Lopez'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'},
+      {nombre: 'Jose Hernandez Lopez'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'},
+      {nombre: 'Jose Hernandez Lopez'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'},
+      {nombre: 'Jose Hernandez Lopez'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'},
+      {nombre: 'Jose Hernandez Lopez'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'},
+      {nombre: 'Jose Hernandez Lopez'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'},
+      {nombre: 'Jose Hernandez Lopez'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'},
+      {nombre: 'Jose Hernandez Lopez'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'},
+      {nombre: 'Jose Hernandez Lopez'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'},
+      {nombre: 'Jose Hernandez Lopez'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'},
+      {nombre: 'Jose Hernandez Lopez'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'},
+      {nombre: 'Jose Hernandez Lopez'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'},
+      {nombre: 'Jose Hernandez Lopez'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'},
+      {nombre: 'Jose Hernandez Lopez'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'},
+      {nombre: 'Jose Hernandez Lopez'},
+      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
+      {nombre: 'Abner De Leon'}
+      
+    ]
+
+    const fecha = new Date();
+    //Mapear
+    const datos: formatoAsistencia = {
+      titulo: "CAPACITACION DE PERSONAL",
+      codigo: "RRHH-REG-001",
+      noPaginas: 3,
+      version: "2",
+      fechaEmision: "15/12/2025",
+      fechaProximaRevision: " 15/12/2025",
+      tipoCapacitacion: "INDUCCION",
+      documentoPadre: docPadre,
+      documentosAsociados: docAsociado,
+      grupoObjetivo:"Bodegueros ",
+      nombreCapacitacion:"Buenas practicas de almacenamiento (BPA)",
+      objetivoCapacitacion: "Induccion documental al puesto",
+      nombreFacilitador: "Jose Armando Lopez de Leon",
+      fechaCapacitacion: "15/12/2025",
+      horario: "10:45 pm",
+      instruccion: "LOS",
+      capacitados: personaCapacitada,
+      orientation: 'portrait'
+    };
+
+    //Generar buffer
+    const pdfBuffer:Uint8Array = await generarListadoAsistenciaPdf(datos);
 
     // Guardar temporal y devolver como StreamableFile
     const tmpDir = join(process.cwd(), 'temp');
