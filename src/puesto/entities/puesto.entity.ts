@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Departamento } from 'src/departamento/entities/departamento.entity';
+import { ProgramaDetallePuesto } from 'src/programa-detalle-puesto/entities/programa-detalle-puesto.entity';
 
 @Entity('PUESTO')
 export class Puesto {
@@ -22,4 +23,7 @@ export class Puesto {
     @ManyToOne(() => Departamento, departamento => departamento.PUESTOS)
     @JoinColumn({ name: 'DEPARTAMENTO_ID' })
     DEPARTAMENTO: Departamento;
+
+    @OneToMany(() => ProgramaDetallePuesto, (relacion) => relacion.PUESTO)
+    PROGRAMA_DETALLE_RELACIONES_PUESTO: ProgramaDetallePuesto[];
 }

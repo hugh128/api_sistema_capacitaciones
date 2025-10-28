@@ -23,6 +23,7 @@ import { TipoCapacitacionModule } from './tipo-capacitacion/tipo-capacitacion.mo
 import { ProgramaCapacitacionModule } from './programa-capacitacion/programa-capacitacion.module';
 import { ProgramaDetalleModule } from './programa-detalle/programa-detalle.module';
 import { ProgramaDetalleDepartamentoModule } from './programa-detalle-departamento/programa-detalle-departamento.module';
+import { ProgramaDetallePuestoModule } from './programa-detalle-puesto/programa-detalle-puesto.module';
 
 
 @Module({
@@ -72,6 +73,7 @@ import { ProgramaDetalleDepartamentoModule } from './programa-detalle-departamen
     ProgramaCapacitacionModule,
     ProgramaDetalleModule,
     ProgramaDetalleDepartamentoModule,
+    ProgramaDetallePuestoModule,
     
   ],
 })

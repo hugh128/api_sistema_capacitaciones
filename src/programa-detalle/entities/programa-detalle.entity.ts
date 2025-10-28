@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { ProgramaCapacitacion } from 'src/programa-capacitacion/entities/programa-capacitacion.entity';
 import { ProgramaDetalleDepartamento } from 'src/programa-detalle-departamento/entities/programa-detalle-departamento.entity';
+import { ProgramaDetallePuesto } from 'src/programa-detalle-puesto/entities/programa-detalle-puesto.entity';
 
 @Entity('PROGRAMA_DETALLE')
 export class ProgramaDetalle {
@@ -23,11 +24,14 @@ export class ProgramaDetalle {
   @Column({ name: 'TIPO_CAPACITACION', length: 10, nullable: false })
   TIPO_CAPACITACION: 'INTERNA' | 'EXTERNA';
 
-  @Column({ name: 'APLICA_TODOS_DEPARTAMENTOS', type: 'bit', default: 0 })
-  APLICA_TODOS_DEPARTAMENTOS: boolean;
+  @Column({ name: 'APLICA_TODOS_COLABORADORES', type: 'bit', default: 0 })
+  APLICA_TODOS_COLABORADORES: boolean;
 
-  @Column({ name: 'FECHA_PROGRAMADA', type: 'date', nullable: true })
-  FECHA_PROGRAMADA: Date;
+  @Column({ name: 'APLICA_DIPLOMA', type: 'bit', default: 0 })
+  APLICA_DIPLOMA: boolean;
+
+  @Column({ name: 'MES_PROGRAMADO', type: 'int', nullable: true })
+  MES_PROGRAMADO: number;
 
   @Column({ name: 'ESTADO', length: 20, default: 'ACTIVO' })
   ESTADO: string;
@@ -41,4 +45,7 @@ export class ProgramaDetalle {
 
   @OneToMany(() => ProgramaDetalleDepartamento, (relacion) => relacion.PROGRAMA_DETALLE)
   DEPARTAMENTO_RELACIONES: ProgramaDetalleDepartamento[];
+
+  @OneToMany(() => ProgramaDetallePuesto, (relacion) => relacion.PROGRAMA_DETALLE)
+  PUESTO_RELACIONES: ProgramaDetallePuesto[];
 }

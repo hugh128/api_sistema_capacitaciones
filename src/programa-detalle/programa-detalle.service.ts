@@ -22,13 +22,17 @@ export class ProgramaDetalleService {
       NOMBRE,
       CATEGORIA_CAPACITACION,
       TIPO_CAPACITACION,
-      APLICA_TODOS_DEPARTAMENTOS,
-      FECHA_PROGRAMADA,
+      APLICA_TODOS_COLABORADORES,
+      APLICA_DIPLOMA,
+      MES_PROGRAMADO,
       ESTADO,
       DEPARTAMENTOS_IDS,
+      PUESTOS_IDS
     } = createProgramaDetalleDto;
 
     const departamentosJSON = JSON.stringify(DEPARTAMENTOS_IDS);
+    const puestosJSON = JSON.stringify(PUESTOS_IDS);
+
 
     try {
       
@@ -38,20 +42,24 @@ export class ProgramaDetalleService {
           @NOMBRE = @1,
           @CATEGORIA_CAPACITACION = @2,
           @TIPO_CAPACITACION = @3,
-          @APLICA_TODOS_DEPARTAMENTOS = @4,
-          @FECHA_PROGRAMADA = @5,
-          @ESTADO = @6,
-          @DEPARTAMENTOS_IDS = @7
+          @APLICA_TODOS_COLABORADORES = @4,
+          @APLICA_DIPLOMA = @5,
+          @MES_PROGRAMADO = @6,
+          @ESTADO = @7,
+          @DEPARTAMENTOS_IDS = @8,
+          @PUESTOS_IDS = @9
         `,
         [
           PROGRAMA_ID,
           NOMBRE,
           CATEGORIA_CAPACITACION,
           TIPO_CAPACITACION,
-          APLICA_TODOS_DEPARTAMENTOS,
-          FECHA_PROGRAMADA,
+          APLICA_TODOS_COLABORADORES,
+          APLICA_DIPLOMA,
+          MES_PROGRAMADO,
           ESTADO,
           departamentosJSON,
+          puestosJSON
         ]
       );
 
@@ -79,7 +87,10 @@ export class ProgramaDetalleService {
       const programaDetalles = await this.programaDetalleService.find({
         relations: {
           DEPARTAMENTO_RELACIONES: {
-            DEPARTAMENTO: true
+            DEPARTAMENTO: true,
+          },
+          PUESTO_RELACIONES: {
+            PUESTO: true
           }
         },
         where: {
@@ -97,8 +108,8 @@ export class ProgramaDetalleService {
         NOMBRE: detalle.NOMBRE,
         CATEGORIA_CAPACITACION: detalle.CATEGORIA_CAPACITACION,
         TIPO_CAPACITACION: detalle.TIPO_CAPACITACION,
-        APLICA_TODOS_DEPARTAMENTOS: detalle.APLICA_TODOS_DEPARTAMENTOS,
-        FECHA_PROGRAMADA: detalle.FECHA_PROGRAMADA,
+        APLICA_TODOS_COLABORADORES: detalle.APLICA_TODOS_COLABORADORES,
+        MES_PROGRAMADO: detalle.MES_PROGRAMADO,
         ESTADO: detalle.ESTADO,
         PROGRAMA_ID: detalle.PROGRAMA_ID,
         DEPARTAMENTO_RELACIONES: detalle.DEPARTAMENTO_RELACIONES.map((rel) => ({
@@ -109,7 +120,15 @@ export class ProgramaDetalleService {
           ESTADO: rel.DEPARTAMENTO.ESTADO,
           FECHA_CREACION: rel.DEPARTAMENTO.FECHA_CREACION,
         })),
+        PUESTO_RELACIONES: detalle.PUESTO_RELACIONES.map((rel) => ({
+          ID_PUESTO: rel.PUESTO.ID_PUESTO,
+          NOMBRE: rel.PUESTO.NOMBRE,
+          DESCRIPCION: rel.PUESTO.DESCRIPCION,
+          ESTADO: rel.PUESTO.ESTADO
+        })),
       }));
+
+      console.log(formattedDetails)
 
       return formattedDetails;
     } catch (error) {

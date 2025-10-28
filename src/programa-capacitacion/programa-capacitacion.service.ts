@@ -62,6 +62,9 @@ export class ProgramaCapacitacionService {
             DEPARTAMENTO_RELACIONES: {
               DEPARTAMENTO: true,
             },
+            PUESTO_RELACIONES: {
+              PUESTO: true
+            }
           },
         },
         order: {
@@ -75,6 +78,9 @@ export class ProgramaCapacitacionService {
           ...detalle,
           DEPARTAMENTO_RELACIONES: detalle.DEPARTAMENTO_RELACIONES.map(
             (rel) => rel.DEPARTAMENTO
+          ),
+          PUESTO_RELACIONES: detalle.PUESTO_RELACIONES.map(
+            (rel) => rel.PUESTO
           ),
         })),
       }));

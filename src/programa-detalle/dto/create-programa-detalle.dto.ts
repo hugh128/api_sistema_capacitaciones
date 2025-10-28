@@ -3,7 +3,6 @@ import {
   IsNotEmpty,
   MaxLength,
   IsOptional,
-  IsDateString,
   IsNumber,
   IsInt,
   ArrayUnique,
@@ -24,11 +23,14 @@ export class CreateProgramaDetalleDto {
   TIPO_CAPACITACION: string;
 
   @IsOptional()
-  APLICA_TODOS_DEPARTAMENTOS?: boolean;
+  APLICA_TODOS_COLABORADORES?: boolean;
 
   @IsOptional()
-  @IsDateString()
-  FECHA_PROGRAMADA?: string;
+  APLICA_DIPLOMA?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  MES_PROGRAMADO?: number;
 
   @IsOptional()
   ESTADO?: string;
@@ -41,4 +43,9 @@ export class CreateProgramaDetalleDto {
   @IsOptional()
   @ArrayUnique()
   DEPARTAMENTOS_IDS: number[];
+
+  @IsInt({ each: true })
+  @IsOptional()
+  @ArrayUnique()
+  PUESTOS_IDS: number[];
 }
