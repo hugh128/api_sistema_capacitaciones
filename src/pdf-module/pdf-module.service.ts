@@ -1,4 +1,4 @@
-import { Injectable, StreamableFile } from '@nestjs/common';
+import { Injectable, StreamableFile, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Documento } from '../documento/entities/documento.entity';
@@ -10,9 +10,10 @@ import { join } from 'path';
 import * as fs from 'fs';
 import { Persona } from 'src/persona/entities/persona.entity';
 import { Puesto } from 'src/puesto/entities/puesto.entity';
-import { colaboradorCapacitado, documentoPadre, documentosAsociados, formatoAsistencia, generarListadoAsistenciaPdf } from './templates/listado-asistencia.template';
+import { colaboradorCapacitado, documentoPadre, documentosAsociados, generarListadoAsistenciaPdf } from './templates/listado-asistencia.template';
 import { CharsetToEncoding } from 'mysql2';
-
+import { FormatoAsistenciaFrontendDto } from './dto/formato-asistencia.dto';
+import { formatoAsistencia } from './templates/listado-asistencia.template';
 @Injectable()
 export class PdfService {
   constructor(
@@ -64,8 +65,6 @@ export class PdfService {
         firmaColaborador: '', 
         estatus: a.ESTATUS ? 'Completa' : 'Incompleta',
       })),
-      // opcional: ruta a imagen de firma
-      // firmaColaboradorImagePath: join(process.cwd(), 'assets', 'firma_colab.png')
     };
 
     //Generar buffer
@@ -86,114 +85,49 @@ export class PdfService {
     return new StreamableFile(fs.createReadStream(outPath));
   }
 
-   async generarListadoAsistencia(idDocumento: number): Promise<StreamableFile> {
+   async generarListadoAsistencia(datos:FormatoAsistenciaFrontendDto): Promise<StreamableFile> {
+    if (!datos) throw new BadRequestException('No se recibieron datos para generar el PDF.');
 
-    const docPadre : documentoPadre={
-      codigoDocumento: '0000',
-      versionDocumento: "1111"
-    }
+    if (!datos.capacitados?.length) throw new BadRequestException('Debe enviar al menos un colaborador capacitado.');
 
+    if (!datos.documentoPadre || !datos.documentosAsociados?.length) throw new BadRequestException('Faltan datos del documento padre o los documentos asociados.');
 
-    const docAsociado : documentosAsociados[] =[
-      {codigoDocumento: "AOC1"},
-      {codigoDocumento: "AOC2"},
-      {codigoDocumento: "AOC3"},
-      {codigoDocumento: "AOC4"},
-      {codigoDocumento: "AOC5"}
-    ] 
+    //campos fijos
+    const tituloFijo = 'CAPACITACION DE PERSONAL';
+    const codigoFijo = 'RRHH-REG-001';
+    const versionFijo = '4';
+    const orientationFijo: 'portrait' | 'landscape' = 'portrait';
 
-    const personaCapacitada : colaboradorCapacitado[] =
-    [
-      {nombre: 'Jose Hernandez Lopez'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'},
-      {nombre: 'Jose Hernandez Lopez'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'},
-      {nombre: 'Jose Hernandez Lopez'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'},
-      {nombre: 'Jose Hernandez Lopez'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'},
-      {nombre: 'Jose Hernandez Lopez'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'},
-      {nombre: 'Jose Hernandez Lopez'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'},
-      {nombre: 'Jose Hernandez Lopez'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'},
-      {nombre: 'Jose Hernandez Lopez'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'},
-      {nombre: 'Jose Hernandez Lopez'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'},
-      {nombre: 'Jose Hernandez Lopez'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'},
-      {nombre: 'Jose Hernandez Lopez'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'},
-      {nombre: 'Jose Hernandez Lopez'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'},
-      {nombre: 'Jose Hernandez Lopez'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'},
-      {nombre: 'Jose Hernandez Lopez'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'},
-      {nombre: 'Jose Hernandez Lopez'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'},
-      {nombre: 'Jose Hernandez Lopez'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'},
-      {nombre: 'Jose Hernandez Lopez'},
-      {nombre: 'Jorge Rodriguez Hernandez Lopez'},
-      {nombre: 'Abner De Leon'}
-      
-    ]
-
-    const fecha = new Date();
-    //Mapear
-    const datos: formatoAsistencia = {
-      titulo: "CAPACITACION DE PERSONAL",
-      codigo: "RRHH-REG-001",
-      noPaginas: 3,
-      version: "2",
-      fechaEmision: "15/12/2025",
-      fechaProximaRevision: " 15/12/2025",
-      tipoCapacitacion: "INDUCCION",
-      documentoPadre: docPadre,
-      documentosAsociados: docAsociado,
-      grupoObjetivo:"Bodegueros ",
-      nombreCapacitacion:"Buenas practicas de almacenamiento (BPA)",
-      objetivoCapacitacion: "Induccion documental al puesto",
-      nombreFacilitador: "Jose Armando Lopez de Leon",
-      fechaCapacitacion: "15/12/2025",
-      horario: "10:45 pm",
-      instruccion: "LOS",
-      capacitados: personaCapacitada,
-      orientation: 'portrait'
+    // 
+    const datosPdf: formatoAsistencia = {
+      titulo: tituloFijo,
+      codigo: codigoFijo,
+      version: versionFijo,
+      orientation: orientationFijo,
+      fechaEmision: datos.fechaEmision,
+      fechaProximaRevision: datos.fechaProximaRevision,
+      tipoCapacitacion: datos.tipoCapacitacion,
+      documentoPadre: datos.documentoPadre,
+      documentosAsociados: datos.documentosAsociados,
+      grupoObjetivo: datos.grupoObjetivo,
+      nombreCapacitacion: datos.nombreCapacitacion,
+      objetivoCapacitacion: datos.objetivoCapacitacion,
+      nombreFacilitador: datos.nombreFacilitador,
+      fechaCapacitacion: datos.fechaCapacitacion,
+      horario: datos.horario,
+      instruccion: datos.instruccion,
+      capacitados: datos.capacitados,
     };
+  // Llamar al template que genera el PDF
+  const pdfBuffer: Uint8Array = await generarListadoAsistenciaPdf(datosPdf);
 
-    //Generar buffer
-    const pdfBuffer:Uint8Array = await generarListadoAsistenciaPdf(datos);
-
-    // Guardar temporal y devolver como StreamableFile
+    // Creacion de la carpeta temporal para guardar el archivo generado
     const tmpDir = join(process.cwd(), 'temp');
     if (!existsSync(tmpDir)) mkdirSync(tmpDir, { recursive: true });
-    const outPath = join(tmpDir, `induccion_${idDocumento}.pdf`);
+
+    const outPath = join(tmpDir, 'listado_de_asistencia.pdf');
+
+    // Guardar el buffer en disco (temporal)
     await new Promise<void>((resolve, reject) => {
       const w = createWriteStream(outPath);
       w.on('finish', () => resolve());
@@ -202,6 +136,7 @@ export class PdfService {
       w.end();
     });
 
+    // Retornar el PDF como StreamableFile
     return new StreamableFile(fs.createReadStream(outPath));
   }
 }

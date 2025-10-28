@@ -30,7 +30,6 @@ export type documentosAsociados={
 export type formatoAsistencia = {
   titulo: string;
   codigo: string;
-  noPaginas: number;
   version: string;
   fechaEmision: string;
   fechaProximaRevision: string;
@@ -52,6 +51,7 @@ export type formatoAsistencia = {
 };
 
 export async function generarListadoAsistenciaPdf(data: formatoAsistencia): Promise<Uint8Array> {
+  
   let numeroPagina : number = 1;
   let totalPaginas : number = 1;
   const pdfDoc = await PDFDocument.create();
@@ -86,11 +86,11 @@ export async function generarListadoAsistenciaPdf(data: formatoAsistencia): Prom
   //--------------------------------
   //--- Tabla TipoDeCapacitacion ---
   //--------------------------------
+  const codigosAsociados = data.documentosAsociados.map(d => d.codigoDocumento);
     const segundoEncabezado = [
   [
     {
       type: 'container',
-      height: 115,
       elements: [
         { type: 'text', value: 'Tipo de capacitación:', fontSize: 11 },
         { type: 'space', width: 30 },
@@ -109,12 +109,17 @@ export async function generarListadoAsistenciaPdf(data: formatoAsistencia): Prom
         { type: 'newline' },
         { type: 'space', width: 30 },
         { type: 'checkbox', label: 'OTRO*', checked: false, fontSize:10 },
+        { type: 'newline' },
+        { type: 'space', width: 15 },
+        { type: 'text', value: 'Documentos asociados: ', fontSize:11, bold:true, inline:true},
+        { type: 'space', width: 1 },
+        { type: 'text', value: `${codigosAsociados}`, fontSize:10, inline:true},
       ],
       gap: 1,
-      padding: { top: 4, left: 4 },
       backgroundColor: [1, 1, 1],
       borderColor: [0, 0, 0],
       borderWidth: 1,
+      padding: { top: 2, left: 2, right: 2, bottom: 0 },
       
     } as CellContainer,
 
@@ -128,7 +133,9 @@ export async function generarListadoAsistenciaPdf(data: formatoAsistencia): Prom
         { type: 'space', width: 30 },
         { type: 'checkbox', label: 'Externo', checked: false, fontSize:10 },
         { type: 'newline' },
-        { type: 'text', value: `Grupo Objetivo: \n ${data.grupoObjetivo}` , fontSize: 11 },
+        { type: 'text', value: `Grupo Objetivo:` , fontSize: 11 },
+        { type: 'space' },
+        { type: 'text', value: ` ${data.grupoObjetivo}` , fontSize: 11 },
       ],
       gap: 3,
       padding: { top: 5, left: 4 },
@@ -468,7 +475,12 @@ const cellBackgroundColors = listRowCapacitados.map(row => {
   const columnWeightsListado = [
     0.05, 0.4, 0.2, 0.2, 0.15,
   ];
-  
+      currentPage.drawText(`Doc. Asociado: RRHH-PEO-008`, {
+       x: 30,
+       y: 20,
+       size: 10,
+       font,
+    });
   currentPage = page;
   //currentStartY = pageHeight - (orientation === 'landscape' ? 180 : 529);
   const result6 = await drawTable({
@@ -489,7 +501,12 @@ const cellBackgroundColors = listRowCapacitados.map(row => {
         const newPage = pdfDoc.addPage(pageSize);
         const headerResult = await drawHeaderPrincipal(pdfDoc,newPage,numeroPagina,totalPaginas);
         await drawHeaderPrincipal(pdfDoc,currentPage,numeroPagina,totalPaginas);
-
+      currentPage.drawText(`Doc. Asociado: RRHH-PEO-008`, {
+       x: 30,
+       y: 20,
+       size: 10,
+       font,
+      });
         currentPage.drawLine({
           start: { x: 405, y: 755 },
           end: { x: 565,  y: 755 },
@@ -514,9 +531,17 @@ let fy = endY - footerBoxHeight - 10;
 
   if (fy < 80) {
     // Si el pie no cabe, se crea nueva página
-    currentPage = pdfDoc.addPage(pageSize);
-    fy = pageHeight - 100;
-    totalPaginas++;
+    totalPaginas++; 
+    const newPage = pdfDoc.addPage(pageSize);
+    pages.push(newPage);
+    currentPage = newPage;
+    fy = pageHeight - 200;
+    currentPage.drawText(`Doc. Asociado: RRHH-PEO-008`, {
+       x: 30,
+       y: 20,
+       size: 10,
+       font,
+    });
   }
 
 
@@ -556,6 +581,8 @@ const config = orientation === 'landscape'
   });
 
   currentStartY = y-20;
+
+  console.log(currentStartY)
   const observaciones = [
     [
       {
@@ -587,27 +614,27 @@ const config = orientation === 'landscape'
     columnWeights: [1],
 
     onCreateNewPage: async () => {
-        totalPaginas++; 
-        const newPage = pdfDoc.addPage(pageSize);
-        pages.push(newPage);
-        //const headerResult = await drawHeaderPrincipal(pdfDoc,newPage,numeroPagina,pages.length);
-        //currentStartY = headerResult-5;
-        return newPage;
-      },
-      onCreateNewPageStartY: (page)=> {
-        return currentStartY;
-      },
+       currentPage.drawText(`Doc. Asociado: RRHH-PEO-008`, {
+         x: 30,
+         y: 20,
+         size: 10,
+         font,
+       });
+       totalPaginas++; 
+       const newPage = pdfDoc.addPage(pageSize);
+       pages.push(newPage);
+       //const headerResult = await drawHeaderPrincipal(pdfDoc,newPage,numeroPagina,pages.length);
+       //currentStartY = headerResult-5;
+       return newPage;
+    },
+    onCreateNewPageStartY: (page)=> {
+      return currentStartY;
+    },
     });
 
   currentPage = result7.lastPage;
   currentStartY = result7.endY;
 
-    currentPage.drawText(`Doc. Asociado: RRHH-PEO-008`, {
-    x: 30,
-    y: currentStartY-14,
-    size: 10,
-    font,
-  });
   // Dibujar la línea del subrayado
   currentPage.drawLine({
     start: { x: 80, y: currentStartY+45 },
