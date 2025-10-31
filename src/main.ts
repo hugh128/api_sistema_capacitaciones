@@ -14,7 +14,16 @@ async function bootstrap() {
     credentials: true,
   });
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+/*       whitelist: true, // Remueve propiedades no definidas en el DTO
+      forbidNonWhitelisted: true, // Lanza error si hay propiedades extras
+      transform: true, // Transforma tipos automáticamente
+      transformOptions: {
+        enableImplicitConversion: true,
+      }, */
+    })
+  );
   const reflector = app.get(Reflector);
   app.useGlobalGuards(new JwtAuthGuard(reflector));
   const port = process.env.PORT || 3001;

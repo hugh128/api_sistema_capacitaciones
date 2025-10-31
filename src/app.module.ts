@@ -24,6 +24,8 @@ import { ProgramaCapacitacionModule } from './programa-capacitacion/programa-cap
 import { ProgramaDetalleModule } from './programa-detalle/programa-detalle.module';
 import { ProgramaDetalleDepartamentoModule } from './programa-detalle-departamento/programa-detalle-departamento.module';
 import { ProgramaDetallePuestoModule } from './programa-detalle-puesto/programa-detalle-puesto.module';
+import { CapacitacionesModule } from './capacitaciones/capacitaciones.module';
+import { StorageModule } from './storage/storage.module';
 
 
 @Module({
@@ -74,6 +76,8 @@ import { ProgramaDetallePuestoModule } from './programa-detalle-puesto/programa-
     ProgramaDetalleModule,
     ProgramaDetalleDepartamentoModule,
     ProgramaDetallePuestoModule,
+    CapacitacionesModule,
+    StorageModule,
     
   ],
 })
