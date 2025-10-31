@@ -1,4 +1,4 @@
-import { Injectable, StreamableFile } from '@nestjs/common';
+import { Injectable, StreamableFile, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Documento } from '../documento/entities/documento.entity';
@@ -10,12 +10,16 @@ import { join } from 'path';
 import * as fs from 'fs';
 import { Persona } from 'src/persona/entities/persona.entity';
 import { Puesto } from 'src/puesto/entities/puesto.entity';
-
+import { colaboradorCapacitado, documentoPadre, documentosAsociados, generarListadoAsistenciaPdf } from './templates/listado-asistencia.template';
+import { CharsetToEncoding } from 'mysql2';
+import { FormatoAsistenciaFrontendDto } from './dto/formato-asistencia.dto';
+import { formatoAsistencia } from './templates/listado-asistencia.template';
 @Injectable()
 export class PdfService {
   constructor(
     @InjectRepository(Documento) private readonly documentoRepo: Repository<Documento>,
     @InjectRepository(DocumentoAsociado) private readonly docAsociadoRepo: Repository<DocumentoAsociado>,
+    
   ) {}
 
   async generarInduccionDocumental(idDocumento: number): Promise<StreamableFile> {
@@ -61,8 +65,6 @@ export class PdfService {
         firmaColaborador: '', 
         estatus: a.ESTATUS ? 'Completa' : 'Incompleta',
       })),
-      // opcional: ruta a imagen de firma
-      // firmaColaboradorImagePath: join(process.cwd(), 'assets', 'firma_colab.png')
     };
 
     //Generar buffer
@@ -80,6 +82,61 @@ export class PdfService {
       w.end();
     });
 
+    return new StreamableFile(fs.createReadStream(outPath));
+  }
+
+   async generarListadoAsistencia(datos:FormatoAsistenciaFrontendDto): Promise<StreamableFile> {
+    if (!datos) throw new BadRequestException('No se recibieron datos para generar el PDF.');
+
+    if (!datos.capacitados?.length) throw new BadRequestException('Debe enviar al menos un colaborador capacitado.');
+
+    if (!datos.documentoPadre || !datos.documentosAsociados?.length) throw new BadRequestException('Faltan datos del documento padre o los documentos asociados.');
+
+    //campos fijos
+    const tituloFijo = 'CAPACITACION DE PERSONAL';
+    const codigoFijo = 'RRHH-REG-001';
+    const versionFijo = '4';
+    const orientationFijo: 'portrait' | 'landscape' = 'portrait';
+
+    // 
+    const datosPdf: formatoAsistencia = {
+      titulo: tituloFijo,
+      codigo: codigoFijo,
+      version: versionFijo,
+      orientation: orientationFijo,
+      fechaEmision: datos.fechaEmision,
+      fechaProximaRevision: datos.fechaProximaRevision,
+      tipoCapacitacion: datos.tipoCapacitacion,
+      documentoPadre: datos.documentoPadre,
+      documentosAsociados: datos.documentosAsociados,
+      grupoObjetivo: datos.grupoObjetivo,
+      nombreCapacitacion: datos.nombreCapacitacion,
+      objetivoCapacitacion: datos.objetivoCapacitacion,
+      nombreFacilitador: datos.nombreFacilitador,
+      fechaCapacitacion: datos.fechaCapacitacion,
+      horario: datos.horario,
+      instruccion: datos.instruccion,
+      capacitados: datos.capacitados,
+    };
+  // Llamar al template que genera el PDF
+  const pdfBuffer: Uint8Array = await generarListadoAsistenciaPdf(datosPdf);
+
+    // Creacion de la carpeta temporal para guardar el archivo generado
+    const tmpDir = join(process.cwd(), 'temp');
+    if (!existsSync(tmpDir)) mkdirSync(tmpDir, { recursive: true });
+
+    const outPath = join(tmpDir, 'listado_de_asistencia.pdf');
+
+    // Guardar el buffer en disco (temporal)
+    await new Promise<void>((resolve, reject) => {
+      const w = createWriteStream(outPath);
+      w.on('finish', () => resolve());
+      w.on('error', (e) => reject(e));
+      w.write(Buffer.from(pdfBuffer));
+      w.end();
+    });
+
+    // Retornar el PDF como StreamableFile
     return new StreamableFile(fs.createReadStream(outPath));
   }
 }

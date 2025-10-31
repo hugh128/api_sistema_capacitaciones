@@ -153,16 +153,16 @@ export async function generarInduccionDocumentalPdf(
       headerFontSize: 15,
       marginX,
       marginY,
-      align: ['center', 'center', 'center'],
+      //align: ['center', 'center', 'center'],
       columnWeights: [0.2, 0.6, 0.2],
-      images: [[logoBytes, null, null]],
-      headerFontSizes: [8, 14, 8],
-      headerColors: [[1, 1, 1], [1, 1, 1], [1, 1, 1]],
-      headerTextColors: [
+      //images: [[logoBytes, null, null]],
+      //headerFontSizes: [8, 14, 8],
+     // headerColors: [[1, 1, 1], [1, 1, 1], [1, 1, 1]],
+     /* headerTextColors: [
         [0, 0, 0],
         [0, 0, 0],
         [0, 0, 0],
-      ],
+      ],*/
       onCreateNewPage: () => pdfDoc.addPage(pageSize),
     });
   }
@@ -179,16 +179,19 @@ export async function generarInduccionDocumentalPdf(
     font,
     fontSize: 8,
     headerFontSize: 9,
-    headerFontWeights: ['bold'],
+    //headerFontWeights: ['bold'],
     marginX,
     marginY,
     startY: currentStartY,
-    align: headers.map(() => 'center') as ('left' | 'center' | 'right')[],
+    //align: headers.map(() => 'center') as ('left' | 'center' | 'right')[],
     columnWeights: columnWeightsPrincipal,
-    columnFontSizes: headers.map(() => 8),
-    cellFontSizes: rows.map(() => headers.map(() => 8)),
-    headerColors: headers.map(() => [0.06, 0.31, 0.55] as [number, number, number]),
-    headerTextColors: headers.map(() => [1, 1, 1]) as ([number, number, number])[],
+
+    rowPadding: 6,
+    columnPadding: 6,
+    //columnFontSizes: headers.map(() => 8),
+    //cellFontSizes: rows.map(() => headers.map(() => 8)),
+    //headerColors: headers.map(() => [0.06, 0.31, 0.55] as [number, number, number]),
+    //headerTextColors: headers.map(() => [1, 1, 1]) as ([number, number, number])[],
     onCreateNewPage: () => pdfDoc.addPage(pageSize),
   });
     currentPage = result.lastPage;
@@ -205,18 +208,18 @@ for (let i=0; i < 1; i++) {
     font,
     fontSize: 8,
     headerFontSize: 9,
-    headerFontWeights: ['bold'],
+    //headerFontWeights: ['bold'],
     marginX,
     marginY,
     startY: currentStartY,
-    align: ['center'],
+    //align: ['center'],
     columnWeights: [1],
-    columnHeights: [15], // altura del header de bloque
+    //columnHeights: [15], // altura del header de bloque
     rowPadding: 2,
-    columnFontSizes: [8],
-    cellFontSizes: [[]],
-    headerColors: [[1, 1, 1]],
-    headerTextColors: [[0, 0, 0]],
+   // columnFontSizes: [8],
+    //cellFontSizes: [[]],
+   // headerColors: [[1, 1, 1]],
+   // headerTextColors: [[0, 0, 0]],
     onCreateNewPage: () => pdfDoc.addPage(pageSize),
   });
 
@@ -232,18 +235,18 @@ for (let i=0; i < 1; i++) {
     font,
     fontSize: 8,
     headerFontSize: 9,
-    headerFontWeights: ['bold'],
+   // headerFontWeights: ['bold'],
     marginX,
     marginY,
     startY: currentStartY,
-    align: headers.map(() => 'center') as ('left' | 'center' | 'right')[],
+    //align: headers.map(() => 'center') as ('left' | 'center' | 'right')[],
     columnWeights: columnWeightsPrincipal,
-    columnFontSizes: headers.map(() => 8),
-    cellFontSizes: rows.map(() => headers.map(() => 8)),
-    headerColors: headers.map(() => [0.06, 0.31, 0.55] as [number, number, number]),
-    headerTextColors: headers.map(() => [1, 1, 1]) as ([number, number, number])[],
+    //columnFontSizes: headers.map(() => 8),
+   // cellFontSizes: rows.map(() => headers.map(() => 8)),
+   // headerColors: headers.map(() => [0.06, 0.31, 0.55] as [number, number, number]),
+   // headerTextColors: headers.map(() => [1, 1, 1]) as ([number, number, number])[],
     rowPadding: 2,
-    cellBackgroundColors: [[[1, 1, 1], [1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[0.2,0.7, 0.2]]], // filas alternadas
+    //cellBackgroundColors: [[[1, 1, 1], [1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[1, 1, 1],[0.2,0.7, 0.2]]], // filas alternadas
     // espacio entre filas
     onCreateNewPage: () => pdfDoc.addPage(pageSize),
   });
