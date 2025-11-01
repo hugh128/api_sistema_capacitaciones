@@ -366,4 +366,18 @@ export class CapacitacionesController {
       idColaborador,
     );
   }
+
+  /**
+   * GET /capacitaciones/planes/:idPlan/colaboradores-disponibles
+   * Obtiene los colaboradores que cumplen con los requisitos de un plan
+   */
+  @Get('planes/:idPlan/colaboradores-disponibles')
+  async obtenerColaboradoresDisponiblesPlan(
+    @Param('idPlan', ParseIntPipe) idPlan: number,
+  ) {
+    return this.capacitacionesService.obtenerColaboradoresDisponiblesPlan(
+      idPlan,
+    );
+  }
+  
 }

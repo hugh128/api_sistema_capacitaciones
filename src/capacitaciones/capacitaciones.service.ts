@@ -662,4 +662,44 @@ export class CapacitacionesService {
       this.databaseErrorService.handle(error);
     }
   }
+
+  /**
+   * Obtener colaboradores disponibles para un plan
+   */
+  async obtenerColaboradoresDisponiblesPlan(idPlan: number) {
+    try {
+
+      const result = await this.entityManager.query(
+        'EXEC SP_OBTENER_COLABORADORES_DISPONIBLES_PLAN @ID_PLAN = @0',
+        [idPlan]
+      );
+
+      // Separar colaboradores con plan ya aplicado de los que no
+      const colaboradores = result;
+      const disponibles = colaboradores.filter(
+        (c) => c.PLAN_YA_APLICADO === 0,
+      );
+      const yaAplicados = colaboradores.filter(
+        (c) => c.PLAN_YA_APLICADO === 1,
+      );
+
+      return {
+        success: true,
+        data: {
+          disponibles,
+          yaAplicados,
+          totalDisponibles: disponibles.length,
+          totalYaAplicados: yaAplicados.length,
+          todos: colaboradores,
+        },
+      };
+    } catch (error) {
+      this.logger.error(
+        'Error al obtener colaboradores disponibles para plan',
+        error,
+      );
+      this.databaseErrorService.handle(error);
+    }
+  }
+
 }
