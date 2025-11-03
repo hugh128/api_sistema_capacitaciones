@@ -285,4 +285,32 @@ export class UsuarioService {
       this.databaseErrorService.handle(error)
     }
   }
+
+  async obtenerCapacitadores() {
+    try {
+      const ROLE_NAME = 'Capacitador';
+
+      const capacitadores = await this.usuarioResposity
+        .createQueryBuilder('usuario')
+        .innerJoin('usuario.USUARIO_ROLES', 'usuarioRol')
+        .innerJoin('usuarioRol.ROL', 'rol')
+        .innerJoin('usuario.PERSONA', 'persona')
+        .where('rol.NOMBRE = :roleName', { roleName: ROLE_NAME })
+        .andWhere('usuario.ESTADO = :estado', { estado: true })
+        .select([
+          'usuario.ID_USUARIO AS "ID_USUARIO"',
+          'usuario.PERSONA_ID AS "PERSONA_ID"',
+          'usuario.ESTADO AS "ESTADO"',
+          'persona.NOMBRE AS "NOMBRE"',
+          'persona.APELLIDO AS "APELLIDO"',
+          'persona.CORREO AS "CORREO"',
+        ])
+        .getRawMany();
+
+      return capacitadores;
+    } catch (error) {
+      this.databaseErrorService.handle(error);
+    }
+  }
+
 }

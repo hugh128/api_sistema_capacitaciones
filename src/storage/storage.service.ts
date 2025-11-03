@@ -209,4 +209,38 @@ export class StorageService {
       return false;
     }
   }
+
+  
+  /**
+   * Genera una URL firmada para descargar un archivo usando su directorio y nombre.
+   * Útil cuando el archivo es privado y no se tiene la URL completa, solo el path.
+   * @param folder - Carpeta dentro del bucket (ej: 'documentos/2024')
+   * @param fileName - Nombre exacto del archivo (ej: 'informe_q3.pdf')
+   * @param expiresIn - Tiempo de expiración en segundos (default: 1 hora)
+   * @returns URL firmada para la descarga
+   */
+  async downloadFileByPath(
+    folder: string,
+    fileName: string,
+    expiresIn: number = 3600,
+  ): Promise<string> {
+    try {
+      const fileKey = `${folder}/${fileName}`;
+
+      const fileUrlForInput = this.getPublicUrl(fileKey);
+
+      const signedUrl = await this.getSignedDownloadUrlWithFilename(
+        fileUrlForInput,
+        fileName,
+        expiresIn,
+      );
+      
+      this.logger.log(`URL de descarga firmada generada para: ${fileKey}`);
+      return signedUrl;
+    } catch (error) {
+      this.logger.error('Error al generar URL de descarga por path', error);
+      throw new Error('Error al generar URL de descarga por path');
+    }
+  }
+
 }

@@ -7,6 +7,9 @@ import { RegistrarAsistenciaDto } from './dto/registrar-asistencia.dto';
 import { ActualizarEstadoCapacitacionDto } from './dto/actualizar-estado.dto';
 import { DataSource, EntityManager } from 'typeorm';
 import { DatabaseErrorService } from 'src/common/database-error.service';
+import { ActualizarEstadoSesionDto } from './dto/actualizar-estado-sesion.dto';
+import { RegistrarListadoAsistenciaDto } from './dto/RegistrarListadoAsistenciaDto';
+import { ColaboradorAsistenciaDto } from './dto/ColaboradorAsistenciaDto';
 
 @Injectable()
 export class CapacitacionesService {
@@ -82,11 +85,13 @@ export class CapacitacionesService {
         `EXEC SP_OBTENER_CAPACITACIONES_PENDIENTES`,
       );
 
-      return {
+/*       return {
         success: true,
         data: result,
         total: result.length,
-      };
+      }; */
+
+      return result;
     } catch (error) {
       this.logger.error('Error al obtener capacitaciones pendientes', error);
       this.databaseErrorService.handle(error);
@@ -100,40 +105,25 @@ export class CapacitacionesService {
     try {
       const result = await this.entityManager.query(
         `EXEC SP_ASIGNAR_COLABORADORES_CAPACITACION 
-         @ID_CAPACITACION = @0, 
-         @IDS_COLABORADORES = @1, 
-         @CAPACITADOR_ID = @2, 
-         @FECHA_INICIO = @3, 
-         @HORA_INICIO = @4, 
-         @HORA_FIN = @5, 
-         @TIPO_CAPACITACION = @6, 
-         @MODALIDAD = @7, 
-         @GRUPO_OBJETIVO = @8, 
-         @OBJETIVO = @9, 
-         @APLICA_EXAMEN = @10, 
-         @NOTA_MINIMA = @11, 
-         @APLICA_DIPLOMA = @12, 
-         @OBSERVACIONES = @13`,
+         @ID_CAPACITACION = @0,
+         @IDS_COLABORADORES = @1,
+         @OBJETIVO = @2,
+         @TIPO_CAPACITACION = @3, 
+         @MODALIDAD = @4, 
+         @APLICA_EXAMEN = @5, 
+         @NOTA_MINIMA = @6, 
+         @APLICA_DIPLOMA = @7`,
         [
           dto.idCapacitacion,
           dto.idsColaboradores.join(','),
-          dto.capacitadorId || null,
-          dto.fechaInicio || null,
-          dto.horaInicio || null,
-          dto.horaFin || null,
+          dto.objetivo || null,
           dto.tipoCapacitacion || null,
           dto.modalidad || null,
-          dto.grupoObjetivo || null,
-          dto.objetivo || null,
           dto.aplicaExamen,
           dto.notaMinima || null,
           dto.aplicaDiploma,
-          dto.observaciones || null,
         ],
       );
-
-      console.log("Resultado: ")
-      console.log(result)
 
       return {
         success: true,
@@ -145,6 +135,49 @@ export class CapacitacionesService {
       this.databaseErrorService.handle(error);
     }
   }
+
+  /**
+   * Asignar colaboradores a una sesion de una capacitación específica
+   */
+  async asignarColaboradoresSesion(dto: AsignarColaboradoresDto) {
+    try {
+      const result = await this.entityManager.query(
+        `EXEC SP_CREAR_SESION_CAPACITACION 
+         @ID_CAPACITACION = @0,
+         @NOMBRE_SESION = @1,
+         @CAPACITADOR_ID = @2, 
+         @FECHA_INICIO = @3, 
+         @HORA_INICIO = @4, 
+         @HORA_FIN = @5, 
+         @GRUPO_OBJETIVO = @6, 
+         @IDS_COLABORADORES = @7, 
+         @OBSERVACIONES = @8,
+         @USUARIO = @9`,
+        [
+          dto.idCapacitacion,
+          dto.nombreSesion || null,
+          dto.capacitadorId || null,
+          dto.fechaInicio || null,
+          dto.horaInicio || null,
+          dto.horaFin || null,
+          dto.grupoObjetivo || null,
+          dto.idsColaboradores.join(','),
+          dto.observaciones || null,
+          dto.usuario || null,
+        ],
+      );
+
+      return {
+        success: true,
+        message: result[0]?.Mensaje || 'Colaboradores asignados exitosamente a la sesion',
+        data: result[0],
+      };
+    } catch (error) {
+      this.logger.error('Error al asignar colaboradores', error);
+      this.databaseErrorService.handle(error);
+    }
+  }
+
 
   /**
    * Obtener colaboradores de una capacitación
@@ -161,11 +194,33 @@ export class CapacitacionesService {
         [idCapacitacion, filtro],
       );
 
-      return {
+/*       return {
         success: true,
         data: result,
         total: result.length,
-      };
+      }; */
+
+      return result;
+    } catch (error) {
+      this.logger.error('Error al obtener colaboradores de capacitación', error);
+      this.databaseErrorService.handle(error);
+    }
+  }
+
+  /**
+   * Obtener colaboradores de una capacitación sin sesion
+   */
+  async obtenerColaboradoresSinSesion(
+    idCapacitacion: number,
+  ) {
+    try {
+      const result = await this.entityManager.query(
+        `EXEC SP_OBTENER_COLABORADORES_SIN_SESION
+          @ID_CAPACITACION = @0`,
+        [idCapacitacion],
+      );
+
+      return result;
     } catch (error) {
       this.logger.error('Error al obtener colaboradores de capacitación', error);
       this.databaseErrorService.handle(error);
@@ -213,6 +268,54 @@ export class CapacitacionesService {
   }
 
   /**
+   * Obtener colaboradores de una capacitación
+   */
+  async obtenerCapacitacionesPorCapacitador(
+    idCapacitacion: number,
+    filtro: string | null = null,
+  ) {
+    try {
+      const result = await this.entityManager.query(
+        `EXEC SP_OBTENER_MIS_CAPACITACIONES_CAPACITADOR
+          @ID_CAPACITADOR = @0,
+          @FILTRO_ESTADO = @1`,
+        [idCapacitacion, filtro],
+      );
+
+      return result;
+    } catch (error) {
+      this.logger.error('Error al obtener colaboradores de capacitación', error);
+      this.databaseErrorService.handle(error);
+    }
+  }
+
+  /**
+   * Obtener detalle de una sesion de un capacitador
+   */
+  async obtenerDetalleSesionCapacitador(
+    id: number,
+    idSesion: number,
+  ) {
+    try {
+      // Obtener el pool de conexiones nativo de mssql
+      const pool = (this.dataSource.driver as any).master;
+      
+      const result = await pool.request()
+        .input('ID_SESION', idSesion)
+        .input('ID_CAPACITADOR', id)
+        .execute('SP_OBTENER_DETALLE_SESION_CAPACITADOR');
+      
+      return {
+        SESION: result.recordsets[0]?.[0] || null,
+        COLABORADORES: result.recordsets[1] || []
+      };
+    } catch (error) {
+      this.logger.error('Error al obtener detalle de la sesion', error);
+      this.databaseErrorService.handle(error);
+    }
+  }
+
+  /**
    * Actualizar estado de capacitación
    */
   async actualizarEstado(
@@ -230,6 +333,37 @@ export class CapacitacionesService {
           dto.idCapacitacion,
           dto.nuevoEstado,
           urlListaAsistencia || null,
+          dto.observaciones || null,
+        ],
+      );
+
+      return {
+        success: true,
+        message: result[0]?.Mensaje || 'Estado actualizado exitosamente',
+        data: result[0],
+      };
+    } catch (error) {
+      this.logger.error('Error al actualizar estado', error);
+      this.databaseErrorService.handle(error);
+    }
+  }
+
+
+  /**
+   * Actualizar estado de capacitación
+   */
+  async actualizarEstadoSesion(
+    dto: ActualizarEstadoSesionDto,
+  ) {
+    try {
+      const result = await this.entityManager.query(
+        `EXEC SP_INICIAR_SESION_CAPACITADOR 
+         @ID_SESION = @0, 
+         @ID_CAPACITADOR = @1,
+         @OBSERVACIONES = @2`,
+        [
+          dto.idSesion,
+          dto.idCapacitador,
           dto.observaciones || null,
         ],
       );
@@ -300,6 +434,110 @@ export class CapacitacionesService {
     }
   }
 
+
+  /**
+   * Subir lista de asistencia general de una sesion
+   */
+  async subirListaAsistenciaSesion(
+    dto: RegistrarListadoAsistenciaDto,
+    idSesion: number,
+    file: Express.Multer.File,
+  ) {
+    try {
+      const urlListaAsistencia = await this.storageService.uploadFile(
+        file,
+        'capacitaciones/listas-asistencia',
+      );
+
+      await this.dataSource.query(
+        `EXEC SP_FINALIZAR_SESION_CAPACITADOR
+          @ID_SESION = @0,
+          @ID_CAPACITADOR = @1,
+          @URL_LISTA_ASISTENCIA = @2,
+          @OBSERVACIONES = @3
+        `,
+        [idSesion, dto.idCapacitador, urlListaAsistencia, dto.observaciones],
+      );
+
+      return {
+        success: true,
+        message: 'Lista de asistencia subida y sesion finalizada exitosamente.',
+        url: urlListaAsistencia,
+      };
+    } catch (error) {
+      this.logger.error('Error al subir lista de asistencia', error);
+      throw new Error('Error al subir lista de asistencia');
+    }
+  }
+
+  /**
+   * Registro de asistencia, examen y diploma masivo
+  */
+  async registrarAsistenciasMasivas(
+    idSesion: number,
+    colaboradores: ColaboradorAsistenciaDto[],
+    files: Express.Multer.File[] = []
+  ) {
+    try {
+      const colaboradoresConUrls = await Promise.all(
+        colaboradores.map(async (colab) => {
+          let urlExamen: string | undefined;
+          let urlDiploma: string | undefined;
+
+          if (colab.asistio) {
+            const examenFile = files.find(
+              f => f.fieldname === `examen_${colab.idColaborador}`
+            );
+            if (examenFile) {
+              urlExamen = await this.storageService.uploadFile(
+                examenFile,
+                'capacitaciones/examenes',
+              );
+            }
+
+            const diplomaFile = files.find(
+              f => f.fieldname === `diploma_${colab.idColaborador}`
+            );
+            if (diplomaFile) {
+              urlDiploma = await this.storageService.uploadFile(
+                diplomaFile,
+                'capacitaciones/diplomas',
+              );
+            }
+          }
+
+          return {
+            idColaborador: colab.idColaborador,
+            asistio: colab.asistio,
+            notaObtenida: colab.notaObtenida,
+            urlExamen,
+            urlDiploma,
+            observaciones: colab.observaciones,
+          };
+        })
+      );
+
+      const pool = (this.dataSource.driver as any).master;
+      const colaboradoresJson = JSON.stringify(colaboradoresConUrls);
+      
+      const result = await pool.request()
+        .input('ID_SESION', idSesion)
+        .input('COLABORADORES', colaboradoresJson)
+        .execute('SP_REGISTRAR_ASISTENCIA_MASIVA');
+
+      return {
+        ...result.recordset[0],
+        archivosSubidos: {
+          examenes: colaboradoresConUrls.filter(c => c.urlExamen).length,
+          diplomas: colaboradoresConUrls.filter(c => c.urlDiploma).length,
+        },
+      };
+    } catch (error) {
+      this.logger.error('Error al registrar asistencias masivas', error);
+      this.databaseErrorService.handle(error);
+    }
+  }
+
   /**
    * Subir examen individual
    */
@@ -364,37 +602,15 @@ export class CapacitacionesService {
   async obtenerDetalleCapacitacion(idCapacitacion: number) {
     try {
       const result = await this.entityManager.query(
-        `
-        SELECT 
-          C.*,
-          CAP.NOMBRE + ' ' + CAP.APELLIDO AS CAPACITADOR_NOMBRE,
-          CAP.CORREO AS CAPACITADOR_CORREO,
-          CASE 
-            WHEN C.ID_PLAN IS NOT NULL THEN 'PLAN'
-            WHEN C.ID_PROGRAMA IS NOT NULL THEN 'PROGRAMA'
-          END AS TIPO_ORIGEN,
-          ISNULL(PC.NOMBRE, PROG.NOMBRE) AS NOMBRE_ORIGEN,
-          (SELECT STRING_AGG(DA.NOMBRE_DOCUMENTO, ', ')
-           FROM CAPACITACION_DOCUMENTO_ASOCIADO CDA
-           INNER JOIN DOCUMENTO_ASOCIADO DA ON CDA.ID_DOC_ASOCIADO = DA.ID_DOC_ASOCIADO
-           WHERE CDA.ID_CAPACITACION = C.ID_CAPACITACION) AS TEMAS
-        FROM CAPACITACION C
-        LEFT JOIN PERSONA CAP ON C.CAPACITADOR_ID = CAP.ID_PERSONA
-        LEFT JOIN PLAN_CAPACITACION PC ON C.ID_PLAN = PC.ID_PLAN
-        LEFT JOIN PROGRAMA_CAPACITACION PROG ON C.ID_PROGRAMA = PROG.ID_PROGRAMA
-        WHERE C.ID_CAPACITACION = ?
-      `,
+        `EXEC SP_OBTENER_DETALLE_CAPACITACION @ID_CAPACITACION = @0`,
         [idCapacitacion],
-      );
+      )
 
       if (result.length === 0) {
         throw new NotFoundException('Capacitación no encontrada');
       }
 
-      return {
-        success: true,
-        data: result[0],
-      };
+      return result[0];
     } catch (error) {
       this.logger.error('Error al obtener detalle de capacitación', error);
       throw error;
@@ -404,26 +620,23 @@ export class CapacitacionesService {
   /**
    * Descargar lista de asistencia general
    */
-  async descargarListaAsistencia(idCapacitacion: number) {
+  async descargarListaAsistencia(idSesion: number) {
     try {
       const result = await this.entityManager.query(
         `SELECT URL_LISTA_ASISTENCIA 
-         FROM CAPACITACION 
-         WHERE ID_CAPACITACION = @0`,
-        [idCapacitacion],
+         FROM CAPACITACION_SESION 
+         WHERE ID_SESION = @0`,
+        [idSesion],
       );
 
-      console.log("Resultado de descarga de asistencia:")
-      console.log(result)
-
       if (result.length === 0) {
-        throw new NotFoundException('Capacitación no encontrada');
+        throw new NotFoundException('Sesion no encontrada');
       }
 
       const urlListaAsistencia = result[0].URL_LISTA_ASISTENCIA as string;
 
       if (!urlListaAsistencia) {
-        throw new NotFoundException('No existe lista de asistencia para esta capacitación');
+        throw new NotFoundException('No existe lista de asistencia para esta sesion');
       }
 
       // Generar URL firmada con expiración de 1 hora
@@ -450,17 +663,17 @@ export class CapacitacionesService {
   /**
    * Descargar examen de un colaborador
    */
-  async descargarExamen(idCapacitacion: number, idColaborador: number) {
+  async descargarExamen(isSesion: number, idColaborador: number) {
     try {
       const result = await this.entityManager.query(
         `SELECT URL_EXAMEN 
          FROM CAPACITACION_COLABORADOR 
-         WHERE ID_CAPACITACION = @0 AND ID_COLABORADOR = @1`,
-        [idCapacitacion, idColaborador],
+         WHERE ID_SESION = @0 AND ID_COLABORADOR = @1`,
+        [isSesion, idColaborador],
       );
 
       if (result.length === 0) {
-        throw new NotFoundException('Registro de capacitación no encontrado');
+        throw new NotFoundException('Registro de sesion no encontrada');
       }
 
       const urlExamen = result[0].URL_EXAMEN as string;
@@ -492,17 +705,17 @@ export class CapacitacionesService {
   /**
    * Descargar diploma de un colaborador
    */
-  async descargarDiploma(idCapacitacion: number, idColaborador: number) {
+  async descargarDiploma(isSesion: number, idColaborador: number) {
     try {
       const result = await this.entityManager.query(
         `SELECT URL_DIPLOMA 
          FROM CAPACITACION_COLABORADOR 
-         WHERE ID_CAPACITACION = @0 AND ID_COLABORADOR = @1`,
-        [idCapacitacion, idColaborador],
+         WHERE ID_SESION = @0 AND ID_COLABORADOR = @1`,
+        [isSesion, idColaborador],
       );
 
       if (result.length === 0) {
-        throw new NotFoundException('Registro de capacitación no encontrado');
+        throw new NotFoundException('Registro de sesion no encontrada');
       }
 
       const urlDiploma = result[0].URL_DIPLOMA as string;
@@ -531,6 +744,8 @@ export class CapacitacionesService {
     }
   }
 
+
+  
   /**
    * Obtener todos los documentos disponibles de una capacitación
    */

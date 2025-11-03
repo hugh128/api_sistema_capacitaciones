@@ -11,14 +11,18 @@ import {
   ParseIntPipe,
   BadRequestException,
   ValidationPipe,
+  UploadedFiles,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
 import { CapacitacionesService } from './capacitaciones.service';
 import { AplicarPlanDto } from './dto/aplicar-plan.dto';
 import { AplicarProgramaDto } from './dto/aplicar-programa.dto';
 import { AsignarColaboradoresDto } from './dto/asignar-colaboradores.dto';
 import { RegistrarAsistenciaDto } from './dto/registrar-asistencia.dto';
 import { ActualizarEstadoCapacitacionDto } from './dto/actualizar-estado.dto';
+import { ActualizarEstadoSesionDto } from './dto/actualizar-estado-sesion.dto';
+import { RegistrarListadoAsistenciaDto } from './dto/RegistrarListadoAsistenciaDto';
+import { ColaboradorAsistenciaDto } from './dto/ColaboradorAsistenciaDto';
 
 @Controller('capacitaciones')
 export class CapacitacionesController {
@@ -95,6 +99,17 @@ export class CapacitacionesController {
   }
 
   /**
+   * POST /capacitaciones/sesion/asignar
+   * Asigna colaboradores a una sesion de una capacitación específica (RRHH)
+   */
+  @Post('asignar/sesion')
+  async asignarColaboradoresSesion(
+    @Body(ValidationPipe) dto: AsignarColaboradoresDto,
+  ) {
+    return this.capacitacionesService.asignarColaboradoresSesion(dto);
+  }
+
+  /**
    * PUT /capacitaciones/:id/estado
    * Actualiza el estado de una capacitación
    */
@@ -109,6 +124,23 @@ export class CapacitacionesController {
       observaciones: body.observaciones,
     };
     return this.capacitacionesService.actualizarEstado(dto);
+  }
+
+  /**
+   * PUT /capacitaciones/:id/sesion/estado
+   * Actualiza el estado de una sesion a EN_PROCESO
+   */
+  @Put(':id/sesion/estado')
+  async actualizarEstadoSesion(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { idCapacitador: number; observaciones?: string },
+  ) {
+    const dto: ActualizarEstadoSesionDto = {
+      idSesion: id,
+      idCapacitador: body.idCapacitador,
+      observaciones: body.observaciones,
+    };
+    return this.capacitacionesService.actualizarEstadoSesion(dto);
   }
 
   // ========================================
@@ -132,6 +164,19 @@ export class CapacitacionesController {
   }
 
   /**
+   * GET /capacitaciones/:id/colaboradores-sesion
+   * Obtiene la lista de colaboradores para asignarlos a una sesion
+   */
+  @Get(':id/colaboradores-sesion')
+  async obtenerColaboradoresSinSesion(
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.capacitacionesService.obtenerColaboradoresSinSesion(
+      id,
+    );
+  }
+
+  /**
    * POST /capacitaciones/:id/colaboradores/:idColaborador/asistencia
    * Registra la asistencia de un colaborador
    */
@@ -150,6 +195,35 @@ export class CapacitacionesController {
     };
     return this.capacitacionesService.registrarAsistencia(dto);
   }
+
+  // ========================================
+  // CAPACITADOR
+  // ========================================
+
+  /**
+   * GET /capacitaciones/capacitador/:id/listado
+   * Obtiene la lista de capacitaciones asignado a un capacitador
+   * Query params: filtro (TODOS, EN_PROCESO, FINALIZADA_CAPACITADOR, EN_REVISION, FINALIZADA, CANCELADA)
+   */
+  @Get('capacitador/:id/listado')
+  async obtenerCapacitacionesPorCapacitador(
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.capacitacionesService.obtenerCapacitacionesPorCapacitador(id);
+  }
+
+  /**
+   * GET /capacitaciones/capacitador/:id/detalle-sesion/:id
+   * Obtiene detalle de una sesion/capacitacion asignado a un capacitador
+   */
+  @Get('capacitador/:id/detalle-sesion/:idSesion')
+  async obtenerDetalleSesionCapacitador(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('idSesion', ParseIntPipe) idSesion: number,
+  ) {
+    return this.capacitacionesService.obtenerDetalleSesionCapacitador(id, idSesion);
+  }
+
 
   // ========================================
   // SUBIDA DE ARCHIVOS
@@ -298,6 +372,53 @@ export class CapacitacionesController {
     };
 
     return this.capacitacionesService.actualizarEstado(dto, urlListaAsistencia);
+  }
+
+  /**
+   * PUT /capacitaciones/:id/sesion/finalizar
+   * Finaliza una sesion y sube lista de asistencia
+   */
+  @Put(':id/sesion/finalizar')
+  @UseInterceptors(FileInterceptor('listaAsistencia'))
+  async finalizarSesion(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { idCapacitador: number, observaciones?: string },
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Debe proporcionar un archivo PDF');
+    }
+
+    if (file.mimetype !== 'application/pdf') {
+      throw new BadRequestException('El archivo debe ser un PDF');
+    }
+
+    const dto: RegistrarListadoAsistenciaDto = {
+      idCapacitador: body.idCapacitador,
+      observaciones: body.observaciones
+    }
+
+    return this.capacitacionesService.subirListaAsistenciaSesion(dto, id, file);
+  }
+
+  /**
+   * POST /capacitaciones/:idSesion/asistencias/masivo
+   * Finaliza una sesion y sube lista de asistencia
+   */
+  @Post(':idSesion/asistencias/masivo')
+  @UseInterceptors(AnyFilesInterceptor())
+  async registrarAsistenciasMasivas(
+    @Param('idSesion', ParseIntPipe) idSesion: number,
+    @Body() body: { colaboradores: string },
+    @UploadedFiles() files: Express.Multer.File[]
+  ) {
+    const colaboradoresData: ColaboradorAsistenciaDto[] = JSON.parse(body.colaboradores);
+    
+    return await this.capacitacionesService.registrarAsistenciasMasivas(
+      idSesion,
+      colaboradoresData,
+      files
+    );
   }
 
   // ========================================

@@ -77,6 +77,7 @@ export class AuthService {
         DEPARTAMENTO_NOMBRE: usuario.PERSONA.DEPARTAMENTO?.NOMBRE || null,
         
         ROLES: rolesProyectados,
+        PERSONA_ID: usuario.PERSONA_ID
       };
 
       console.log("Usuario autenticado");

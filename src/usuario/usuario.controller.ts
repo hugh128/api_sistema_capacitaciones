@@ -38,4 +38,9 @@ export class UsuarioController {
   remove(@Param('id') id: string) {
     return this.usuarioService.remove(+id);
   }
+
+  @Get('capacitador/capacitadores-disponibles')
+  obtenerCapacitadores() {
+    return this.usuarioService.obtenerCapacitadores();
+  }
 }

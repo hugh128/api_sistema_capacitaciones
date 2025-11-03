@@ -3,7 +3,6 @@ import {
   IsString,
   IsOptional,
   IsArray,
-  IsBoolean,
   IsNumber,
   ArrayMinSize,
   IsDateString,
@@ -63,9 +62,8 @@ export class AsignarColaboradoresDto {
   @IsString()
   objetivo?: string;
 
-  @IsBoolean()
-  @Type(() => Boolean)
-  aplicaExamen: boolean;
+  @IsOptional()
+  aplicaExamen?: boolean;
 
   @IsOptional()
   @IsNumber()
@@ -74,11 +72,18 @@ export class AsignarColaboradoresDto {
   @Max(100)
   notaMinima?: number;
 
-  @IsBoolean()
-  @Type(() => Boolean)
-  aplicaDiploma: boolean;
+  @IsOptional()
+  aplicaDiploma?: boolean;
 
   @IsOptional()
   @IsString()
   observaciones?: string;
+
+  @IsOptional()
+  @IsString()
+  nombreSesion: string;
+
+  @IsOptional()
+  @IsString()
+  usuario: string;
 }

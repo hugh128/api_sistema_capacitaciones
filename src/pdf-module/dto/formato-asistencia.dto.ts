@@ -20,16 +20,15 @@ export class ColaboradorCapacitadoDto {
 }
 
 export class FormatoAsistenciaFrontendDto {
-  @IsDateString()
+  @IsString()
   fechaEmision: string;
 
-  @IsDateString()
+  @IsString()
   fechaProximaRevision: string;
 
   @IsString()
   tipoCapacitacion: string;
 
-  @ValidateNested()
   @Type(() => DocumentoPadreDto)
   documentoPadre: DocumentoPadreDto;
 
@@ -50,7 +49,7 @@ export class FormatoAsistenciaFrontendDto {
   @IsString()
   nombreFacilitador: string;
 
-  @IsDateString()
+  @IsString()
   fechaCapacitacion: string;
 
   @IsString()

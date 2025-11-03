@@ -90,7 +90,16 @@ export class PdfService {
 
     if (!datos.capacitados?.length) throw new BadRequestException('Debe enviar al menos un colaborador capacitado.');
 
-    if (!datos.documentoPadre || !datos.documentosAsociados?.length) throw new BadRequestException('Faltan datos del documento padre o los documentos asociados.');
+    //if (!datos.documentoPadre || !datos.documentosAsociados?.length) throw new BadRequestException('Faltan datos del documento padre o los documentos asociados.');
+
+
+    // si ES_SISTEMA_DOCUMENTAL = false, entonces documentoPadre y documentosAsociados pueden omitirse
+    const tieneDocs = !!(datos.documentoPadre && datos.documentosAsociados?.length);
+
+    if (!tieneDocs) {
+      datos.documentoPadre = { codigoDocumento: '—', versionDocumento: '—' };
+      datos.documentosAsociados = [];
+    }
 
     //campos fijos
     const tituloFijo = 'CAPACITACION DE PERSONAL';
