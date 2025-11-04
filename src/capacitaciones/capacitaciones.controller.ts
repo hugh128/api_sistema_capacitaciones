@@ -61,12 +61,30 @@ export class CapacitacionesController {
   // ========================================
 
   /**
+   * GET /capacitaciones/todas
+   * Obtiene todas las capacitaciones/sesiones (para RRHH)
+   */
+  @Get('todas')
+  async obtenerCapacitaciones() {
+    return this.capacitacionesService.obtenerCapacitaciones();
+  }
+
+  /**
    * GET /capacitaciones/pendientes
    * Obtiene todas las capacitaciones pendientes de asignación (para RRHH)
    */
   @Get('pendientes')
   async obtenerCapacitacionesPendientes() {
     return this.capacitacionesService.obtenerCapacitacionesPendientes();
+  }
+
+  /**
+   * GET /capacitaciones/:id/en-revision
+   * Obtiene todas las capacitaciones en revision para que RRHH confirme y finalice capacitacion (para RRHH)
+   */
+  @Get(':id/en-revision')
+  async obtenerCapacitacionEnRevision(@Param('id', ParseIntPipe) id: number) {
+    return this.capacitacionesService.obtenerCapacitacionEnRevision(id);
   }
 
   /**
@@ -418,6 +436,42 @@ export class CapacitacionesController {
       idSesion,
       colaboradoresData,
       files
+    );
+  }
+
+  // ========================================
+  // RRHH
+  // ========================================
+
+  /**
+   * Put /capacitaciones/:idSesion/aprobar/asistencias
+   * RRHH aprueba una sesion con las asistencias actualizadas
+   */
+  @Put(':idSesion/aprobar/asistencias')
+  async aprobarAsistencias(
+    @Param('idSesion', ParseIntPipe) idSesion: number,
+    @Body() body: { colaboradores: ColaboradorAsistenciaDto[], usuario: string },
+  ) {
+    return this.capacitacionesService.aprobarAsistencias(
+      idSesion,
+      body.colaboradores,
+      body.usuario
+    );
+  }
+
+  /**
+   * PUT /capacitaciones/:id/sesion/aprobar
+   * RRHH aprueba una sesion
+   */
+  @Put(':id/sesion/aprobar')
+  async aprobarSesion(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { usuario: string, observaciones: string},
+  ) {
+    return await this.capacitacionesService.aprobarSesion(
+      id,
+      body.usuario,
+      body.observaciones,
     );
   }
 

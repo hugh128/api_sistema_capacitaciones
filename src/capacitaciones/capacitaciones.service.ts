@@ -77,6 +77,22 @@ export class CapacitacionesService {
   }
 
   /**
+   * Obtener todas las capacitaciones/sesiones para RRHH
+   */
+  async obtenerCapacitaciones() {
+    try {
+      const result = await this.entityManager.query(
+        `EXEC SP_OBTENER_VISTA_COMPLETA_CAPACITACIONES_RRHH`,
+      );
+
+      return result;
+    } catch (error) {
+      this.logger.error('Error al obtener capacitaciones pendientes', error);
+      this.databaseErrorService.handle(error);
+    }
+  }
+
+  /**
    * Obtener capacitaciones pendientes para RRHH
    */
   async obtenerCapacitacionesPendientes() {
@@ -94,6 +110,28 @@ export class CapacitacionesService {
       return result;
     } catch (error) {
       this.logger.error('Error al obtener capacitaciones pendientes', error);
+      this.databaseErrorService.handle(error);
+    }
+  }
+
+  /**
+   * Obtener capacitacion en revision para RRHH
+   */
+  async obtenerCapacitacionEnRevision(idSesion: number) {
+    try {
+      const pool = (this.dataSource.driver as any).master;
+      
+      const result = await pool.request()
+        .input('ID_SESION', idSesion)
+        .execute('SP_OBTENER_SESION_PARA_REVISION_RRHH');
+      
+      return {
+        SESION: result.recordsets[0]?.[0] || null,
+        COLABORADORES: result.recordsets[1] || []
+      };
+
+    } catch (error) {
+      this.logger.error('Error al obtener capacitaciones en revision', error);
       this.databaseErrorService.handle(error);
     }
   }
@@ -537,6 +575,72 @@ export class CapacitacionesService {
       this.databaseErrorService.handle(error);
     }
   }
+
+  /**
+   * Registro de asistencia de una sesion aprobada
+  */
+  async aprobarAsistencias(
+    idSesion: number,
+    colaboradores: ColaboradorAsistenciaDto[],
+    usuario: string
+  ) {
+    try {
+      const colaboradoresData = colaboradores.map((colab) => ({
+        idColaborador: colab.idColaborador,
+        asistio: colab.asistio,
+        notaObtenida: colab.notaObtenida ?? null,
+        observaciones: colab.observaciones ?? null,
+      }));
+
+      const pool = (this.dataSource.driver as any).master;
+      const colaboradoresJson = JSON.stringify(colaboradoresData);
+
+      const result = await pool.request()
+        .input('ID_SESION', idSesion)
+        .input('COLABORADORES', colaboradoresJson)
+        .input('USUARIO_RRHH', usuario)
+        .execute('SP_RRHH_ACTUALIZAR_COLABORADORES_MASIVO');
+
+      return result.recordset[0];
+    } catch (error) {
+      this.logger.error('Error al registrar asistencias masivas', error);
+      this.databaseErrorService.handle(error);
+    }
+  }
+
+
+  /**
+   * RRHH aprueba una sesion
+   */
+  async aprobarSesion(
+    idSesion: number,
+    usuario: string,
+    observaciones: string
+  ) {
+    try {
+      const result = await this.entityManager.query(
+        `EXEC SP_RRHH_APROBAR_SESION 
+         @ID_SESION = @0, 
+         @USUARIO_RRHH = @1,
+         @OBSERVACIONES_RRHH = @2`,
+        [
+          idSesion,
+          usuario,
+          observaciones,
+        ],
+      );
+
+      return {
+        success: true,
+        message: result[0]?.Mensaje || 'Sesion aprobada exitosamente.',
+        data: result[0],
+      };
+    } catch (error) {
+      this.logger.error('Error al aprobar sesion', error);
+      this.databaseErrorService.handle(error);
+    }
+  }
+
 
   /**
    * Subir examen individual
