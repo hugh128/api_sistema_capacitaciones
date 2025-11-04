@@ -16,18 +16,20 @@ export class DepartamentoService {
 
   async create(createDepartamentoDto: CreateDepartamentoDto) {
     try {
-	  const { CODIGO, NOMBRE, DESCRIPCION, ESTADO } = createDepartamentoDto;
+	  const { CODIGO, NOMBRE, DESCRIPCION, ID_ENCARGADO, ESTADO } = createDepartamentoDto;
 
       const result = await this.entityManager.query(
         `EXEC sp_DEPARTAMENTO_ALTA 
           @CODIGO = @0,
           @NOMBRE = @1, 
-          @DESCRIPCION = @2, 
-          @ESTADO = @3`, 
+          @DESCRIPCION = @2,
+          @ID_ENCARGADO = @3,
+          @ESTADO = @4`, 
         [
           CODIGO,
           NOMBRE,
           DESCRIPCION,
+          ID_ENCARGADO,
           ESTADO
         ]
       );
@@ -45,7 +47,11 @@ export class DepartamentoService {
 
   async findAll() {
     try {
-      return await this.departamentoRepository.find();
+      return await this.departamentoRepository.find({
+        relations: {
+          ENCARGADO: true
+        }
+      });
     } catch (error) {
       handleDbError(error);      
     }
@@ -69,7 +75,7 @@ export class DepartamentoService {
 
   async update(id: number, updateDepartamentoDto: UpdateDepartamentoDto) {
     try {
-	  const { CODIGO, NOMBRE, DESCRIPCION, ESTADO } = updateDepartamentoDto;
+	  const { CODIGO, NOMBRE, DESCRIPCION, ID_ENCARGADO, ESTADO } = updateDepartamentoDto;
 
       const result = await this.entityManager.query(
         `EXEC sp_DEPARTAMENTO_ACTUALIZAR
@@ -77,12 +83,14 @@ export class DepartamentoService {
             @CODIGO = @1,
             @NOMBRE = @2,
             @DESCRIPCION = @3,
-            @ESTADO = @4`,
+            @ID_ENCARGADO = @4,
+            @ESTADO = @5`,
         [
           id,
           CODIGO,
           NOMBRE,
           DESCRIPCION,
+          ID_ENCARGADO,
           ESTADO
         ]
       );

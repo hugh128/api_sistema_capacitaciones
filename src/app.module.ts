@@ -27,7 +27,6 @@ import { ProgramaDetallePuestoModule } from './programa-detalle-puesto/programa-
 import { CapacitacionesModule } from './capacitaciones/capacitaciones.module';
 import { StorageModule } from './storage/storage.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -78,7 +77,6 @@ import { StorageModule } from './storage/storage.module';
     ProgramaDetallePuestoModule,
     CapacitacionesModule,
     StorageModule,
-    
   ],
 })
 export class AppModule {}

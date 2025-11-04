@@ -1,7 +1,8 @@
 import { 
     Entity, PrimaryGeneratedColumn, Column, ManyToOne, 
     JoinColumn,
-    OneToOne
+    OneToOne,
+    OneToMany
 } from 'typeorm';
 import { Empresa } from 'src/empresa/entities/empresa.entity';
 import { Departamento } from 'src/departamento/entities/departamento.entity';
@@ -64,5 +65,7 @@ export class Persona {
 
     @OneToOne(() => Usuario, usuario => usuario.PERSONA)
     USUARIO: Usuario;
-    
+
+    @OneToMany(() => Departamento, departamento => departamento.ENCARGADO)
+    ENCARGADOS: Persona[];
 }

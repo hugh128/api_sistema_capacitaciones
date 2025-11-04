@@ -17,5 +17,8 @@ export class CreateDepartamentoDto {
     DESCRIPCION?: string;
 
     @IsOptional()
+    ID_ENCARGADO: number | null;
+
+    @IsOptional()
     ESTADO?: boolean;
 }
