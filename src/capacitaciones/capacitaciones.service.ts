@@ -137,6 +137,28 @@ export class CapacitacionesService {
   }
 
   /**
+   * Obtiene detalle completo de una sesion
+   */
+  async obtenerDetalleSesion(idSesion: number) {
+    try {
+      const pool = (this.dataSource.driver as any).master;
+      
+      const result = await pool.request()
+        .input('ID_SESION', idSesion)
+        .execute('SP_OBTENER_DETALLE_SESION');
+      
+      return {
+        SESION: result.recordsets[0]?.[0] || null,
+        COLABORADORES: result.recordsets[1] || []
+      };
+
+    } catch (error) {
+      this.logger.error('Error al obtener capacitaciones en revision', error);
+      this.databaseErrorService.handle(error);
+    }
+  }
+
+  /**
    * Asignar colaboradores a una capacitación específica
    */
   async asignarColaboradores(dto: AsignarColaboradoresDto) {
@@ -190,7 +212,8 @@ export class CapacitacionesService {
          @GRUPO_OBJETIVO = @6, 
          @IDS_COLABORADORES = @7, 
          @OBSERVACIONES = @8,
-         @USUARIO = @9`,
+         @USUARIO = @9
+         @OBJETIVO = @10`,
         [
           dto.idCapacitacion,
           dto.nombreSesion || null,
@@ -202,6 +225,7 @@ export class CapacitacionesService {
           dto.idsColaboradores.join(','),
           dto.observaciones || null,
           dto.usuario || null,
+          dto.objetivo || null,
         ],
       );
 

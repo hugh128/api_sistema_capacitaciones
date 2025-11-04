@@ -84,7 +84,16 @@ export class CapacitacionesController {
    */
   @Get(':id/en-revision')
   async obtenerCapacitacionEnRevision(@Param('id', ParseIntPipe) id: number) {
-    return this.capacitacionesService.obtenerCapacitacionEnRevision(id);
+    return await this.capacitacionesService.obtenerCapacitacionEnRevision(id);
+  }
+
+  /**
+   * GET /capacitaciones/:id
+   * Obtiene el detalle completo de una sesion
+   */
+  @Get(':id/sesion/detalle')
+  async obtenerDetalleSesion(@Param('id', ParseIntPipe) id: number) {
+    return await this.capacitacionesService.obtenerDetalleSesion(id);
   }
 
   /**
