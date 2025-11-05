@@ -27,6 +27,7 @@ import { ProgramaDetallePuestoModule } from './programa-detalle-puesto/programa-
 import { CapacitacionesModule } from './capacitaciones/capacitaciones.module';
 import { StorageModule } from './storage/storage.module';
 import { ColaboradoresModule } from './colaboradores/colaboradores.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -79,6 +80,7 @@ import { ColaboradoresModule } from './colaboradores/colaboradores.module';
     CapacitacionesModule,
     StorageModule,
     ColaboradoresModule,
+    DashboardModule,
   ],
 })
 export class AppModule {}

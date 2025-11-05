@@ -212,7 +212,7 @@ export class CapacitacionesService {
          @GRUPO_OBJETIVO = @6, 
          @IDS_COLABORADORES = @7, 
          @OBSERVACIONES = @8,
-         @USUARIO = @9
+         @USUARIO = @9,
          @OBJETIVO = @10`,
         [
           dto.idCapacitacion,
