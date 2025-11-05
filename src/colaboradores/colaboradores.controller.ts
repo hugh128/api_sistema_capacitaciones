@@ -1,0 +1,55 @@
+import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { ColaboradoresService } from './colaboradores.service';
+
+@Controller('colaboradores')
+export class ColaboradoresController {
+  constructor(
+    private readonly colaboradoresService: ColaboradoresService
+  ) {}
+
+  /**
+   * GET /colaboradores
+   * Obtiener listado de colaboradores
+   */
+  @Get()
+  async obtenerColaboradores() {
+    return this.colaboradoresService.obtenerColaboradores();
+  }
+
+  /**
+   * GET /colaboradores/:id/capacitaciones
+   * Obtiener listado de colaboradores
+   */
+  @Get(':id/capacitaciones')
+  async obtenerCapacitacionesColaborador(@Param('id', ParseIntPipe) id: number) {
+    return this.colaboradoresService.obtenerCapacitacionesColaborador(id);
+  } 
+
+  /**
+   * GET /colaboradores/:id/documentos
+   * Obtiener documentos de colaborador
+   */
+  @Get(':id/documentos')
+  async obtenerDocumentosColaborador(@Param('id', ParseIntPipe) id: number) {
+    return this.colaboradoresService.obtenerDocumentosColaborador(id);
+  }
+
+  /**
+   * GET /colaboradores/:id/historial
+   * Obtiener el historial de las capacitaciones del colaborador
+   */
+  @Get(':id/historial')
+  async obtenerHistorialColaborador(@Param('id', ParseIntPipe) id: number) {
+    return this.colaboradoresService.obtenerHistorialColaborador(id);
+  } 
+
+  /**
+   * GET /colaboradores/:id/historial
+   * Obtiener el historial de las capacitaciones del colaborador
+   */
+  @Get(':id/resumen')
+  async obtenerResumenlColaborador(@Param('id', ParseIntPipe) id: number) {
+    return this.colaboradoresService.obtenerResumenColaborador(id);
+  }  
+
+}

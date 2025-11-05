@@ -26,6 +26,7 @@ import { ProgramaDetalleDepartamentoModule } from './programa-detalle-departamen
 import { ProgramaDetallePuestoModule } from './programa-detalle-puesto/programa-detalle-puesto.module';
 import { CapacitacionesModule } from './capacitaciones/capacitaciones.module';
 import { StorageModule } from './storage/storage.module';
+import { ColaboradoresModule } from './colaboradores/colaboradores.module';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { StorageModule } from './storage/storage.module';
     ProgramaDetallePuestoModule,
     CapacitacionesModule,
     StorageModule,
+    ColaboradoresModule,
   ],
 })
 export class AppModule {}
