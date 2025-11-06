@@ -28,6 +28,7 @@ import { CapacitacionesModule } from './capacitaciones/capacitaciones.module';
 import { StorageModule } from './storage/storage.module';
 import { ColaboradoresModule } from './colaboradores/colaboradores.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { DocumentsModuleModule } from './documents-module/documents-module.module';
 
 @Module({
   imports: [
@@ -81,6 +82,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     StorageModule,
     ColaboradoresModule,
     DashboardModule,
+    DocumentsModuleModule,
   ],
 })
 export class AppModule {}
