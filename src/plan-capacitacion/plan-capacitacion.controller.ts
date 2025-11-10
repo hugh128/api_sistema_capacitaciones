@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe } from '@nestjs/common';
 import { PlanCapacitacionService } from './plan-capacitacion.service';
 import { CreatePlanCapacitacionDto } from './dto/create-plan-capacitacion.dto';
 import { UpdatePlanCapacitacionDto } from './dto/update-plan-capacitacion.dto';
+import { CambiarPlanCapacitacionDto } from './dto/cambiar-plan-capacitacion.dto';
 
 @Controller('plan-capacitacion')
 export class PlanCapacitacionController {
@@ -30,5 +31,20 @@ export class PlanCapacitacionController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.planCapacitacionService.remove(+id);
+  }
+
+  @Post('verificar/cambio')
+  verificarCambioPlan(@Body(ValidationPipe) dto: CambiarPlanCapacitacionDto) {
+    return this.planCapacitacionService.verificarCambioPlan(dto);
+  }
+
+  @Post('analizar/cambio')
+  analizarCambioPlan(@Body(ValidationPipe) dto: CambiarPlanCapacitacionDto) {
+    return this.planCapacitacionService.analizarCambioPlan(dto);
+  }
+
+  @Patch('cambiar-plan/colaborador')
+  cambiarPlanColaborador(@Body(ValidationPipe) dto: CambiarPlanCapacitacionDto) {
+    return this.planCapacitacionService.cambiarPlanColaborador(dto);
   }
 }

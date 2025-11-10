@@ -1,10 +1,11 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { CreatePlanCapacitacionDto } from './dto/create-plan-capacitacion.dto';
 import { UpdatePlanCapacitacionDto } from './dto/update-plan-capacitacion.dto';
-import { EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { PlanCapacitacion } from './entities/plan-capacitacion.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DatabaseErrorService } from 'src/common/database-error.service';
+import { CambiarPlanCapacitacionDto } from './dto/cambiar-plan-capacitacion.dto';
 
 @Injectable()
 export class PlanCapacitacionService {
@@ -12,7 +13,8 @@ export class PlanCapacitacionService {
   constructor(@InjectRepository(PlanCapacitacion)
     private planCapacitacionRepository: Repository<PlanCapacitacion>,
     private readonly entityManager: EntityManager,
-    private readonly databaseErrorService: DatabaseErrorService
+    private readonly databaseErrorService: DatabaseErrorService,
+    private readonly dataSource: DataSource,
   ) {}
 
   private getIdsString(ids: (number | string)[]): string {
@@ -101,6 +103,9 @@ export class PlanCapacitacionService {
           DOCUMENTOS_PLANES: {
             DOCUMENTO: true
           }
+        },
+        order: {
+          FECHA_CREACION: 'desc'
         }
       });
 
@@ -218,4 +223,70 @@ export class PlanCapacitacionService {
   remove(id: number) {
     return `This action removes a #${id} planCapacitacion`;
   }
+
+  async verificarCambioPlan(dto: CambiarPlanCapacitacionDto) {
+    try {
+      const result = await this.entityManager.query(
+        `EXEC SP_ACTUALIZAR_COLABORADOR_VERIFICAR_PLAN
+          @ID_COLABORADOR = @0,
+          @NUEVO_DEPARTAMENTO_ID = @1,
+          @NUEVO_PUESTO_ID = @2`,
+        [
+          dto.ID_COLABORADOR,
+          dto.NUEVO_DEPARTAMENTO_ID,
+          dto.NUEVO_PUESTO_ID
+        ]
+      );
+
+      return result[0] || {};
+    } catch (error) {
+      this.databaseErrorService.handle(error);
+    }
+  }
+
+  async analizarCambioPlan(dto: CambiarPlanCapacitacionDto) {
+    try {
+      const pool = (this.dataSource.driver as any).master;
+      
+      const result = await pool.request()
+        .input('ID_COLABORADOR', dto.ID_COLABORADOR)
+        .input('NUEVO_DEPARTAMENTO_ID', dto.NUEVO_DEPARTAMENTO_ID)
+        .input('NUEVO_PUESTO_ID', dto.NUEVO_PUESTO_ID)
+        .execute('SP_ANALIZAR_CAMBIO_PLAN_COLABORADOR');
+
+      return {
+        INFORMACION_COLABORADOR: result.recordsets[0] || [],
+        CAPACITACIONES_MIGRAR: result.recordsets[1] || [],
+        CAPACITACIONES_NUEVAS: result.recordsets[2] || []
+      };
+
+    } catch (error) {
+      this.databaseErrorService.handle(error);
+    }
+  }
+
+  async cambiarPlanColaborador(dto: CambiarPlanCapacitacionDto) {
+    try {
+      const result = await this.entityManager.query(
+        `EXEC SP_CAMBIAR_PLAN_COLABORADOR
+          @ID_COLABORADOR = @0,
+          @NUEVO_DEPARTAMENTO_ID = @1,
+          @NUEVO_PUESTO_ID = @2,
+          @IDS_CAPACITACIONES_MIGRAR = @3,
+          @USUARIO = @4`,
+        [
+          dto.ID_COLABORADOR,
+          dto.NUEVO_DEPARTAMENTO_ID,
+          dto.NUEVO_PUESTO_ID,
+          dto.IDS_CAPACITACIONES_MIGRAR.join(''),
+          dto.USUARIO
+        ]
+      );
+
+      return result[0] || {};
+    } catch (error) {
+      this.databaseErrorService.handle(error);
+    }
+  }
+
 }
