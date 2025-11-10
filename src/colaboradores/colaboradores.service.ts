@@ -17,10 +17,11 @@ export class ColaboradoresService {
   /**
    * Obtiener listado de colaboradores
    */
-  async obtenerColaboradores() {
+  async obtenerColaboradores(idEncargado: number | null) {
     try {
       const result = await this.entityManager.query(
-        `EXEC SP_OBTENER_LISTADO_COLABORADORES`,
+        `EXEC SP_OBTENER_LISTADO_COLABORADORES @ID_ENCARGADO = @0`,
+        [idEncargado]
       );
 
       return result;

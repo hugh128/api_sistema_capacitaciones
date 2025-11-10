@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { ColaboradoresService } from './colaboradores.service';
 
 @Controller('colaboradores')
@@ -12,8 +12,10 @@ export class ColaboradoresController {
    * Obtiener listado de colaboradores
    */
   @Get()
-  async obtenerColaboradores() {
-    return this.colaboradoresService.obtenerColaboradores();
+  async obtenerColaboradores(
+    @Query('idEncargado', new ParseIntPipe({ optional: true })) idEncargado?: number
+  ) {
+    return this.colaboradoresService.obtenerColaboradores(idEncargado ?? null);
   }
 
   /**
