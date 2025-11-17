@@ -3,6 +3,8 @@ import { CrearAsistenciaPdfDto } from './dto/crear-asistencia-pdf.dto';
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
 import PdfPrinter from 'pdfmake';
 import * as fs from 'fs';
+import { CrearInduccionDocumentalDto } from './dto/crear-induccion-documental.dto';
+import { crearInduccionDocumentalPdf } from './templates/induccion-documental.template';
 
 @Injectable()
 export class DocumentsModuleService {
@@ -506,5 +508,15 @@ export class DocumentsModuleService {
       pdfDoc.on('error', reject);
       pdfDoc.end();
     });
+  }
+
+  async generateInduccionDocumental(data: CrearInduccionDocumentalDto): Promise<Buffer> {
+    try {
+      const pdfBuffer = await crearInduccionDocumentalPdf(data);
+      return pdfBuffer;
+    } catch (error) {
+      console.error("[SERVICE] Error durante la generación del PDF:", error);
+      throw new Error('No se pudo generar el documento PDF.');
+    }
   }
 }

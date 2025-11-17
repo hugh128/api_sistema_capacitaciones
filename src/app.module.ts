@@ -30,6 +30,7 @@ import { ColaboradoresModule } from './colaboradores/colaboradores.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { DocumentsModuleModule } from './documents-module/documents-module.module';
 
+
 @Module({
   imports: [
     ConfigModule.forRoot({
