@@ -22,5 +22,6 @@ class CapacitacionInduccionDto {
   capacitacion?: string
   evaluacion?: string
   calificacion?: string
+  nombreCapacitador?: string
   estatus: string
 }

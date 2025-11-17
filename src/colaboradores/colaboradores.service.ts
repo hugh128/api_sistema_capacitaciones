@@ -103,4 +103,26 @@ export class ColaboradoresService {
     }
   }
 
+  /**
+   * Obtiener detalle del plan de induccion de un colaborador
+   */
+  async obtenerDetallePlanColaborador(idColaborador: number) {
+    try {
+      const pool = (this.dataSource.driver as any).master;
+      
+      const result = await pool.request()
+        .input('ID_COLABORADOR', idColaborador)
+        .execute('SP_OBTENER_DETALLE_PLAN_COLABORADOR');
+   
+      return {
+        INFORMACION_COLABORADOR: result.recordsets[0]?.[0] || null,
+        PLANES: result.recordsets[1] || [],
+        DETALLE_CAPACITACIONES: result.recordsets[2] || []
+      };
+    } catch (error) {
+      this.logger.error('Error al obtener resumen de colaborador', error);
+      this.databaseErrorService.handle(error);
+    }
+  }
+
 }

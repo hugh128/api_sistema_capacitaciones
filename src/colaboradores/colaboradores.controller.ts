@@ -52,6 +52,15 @@ export class ColaboradoresController {
   @Get(':id/resumen')
   async obtenerResumenlColaborador(@Param('id', ParseIntPipe) id: number) {
     return this.colaboradoresService.obtenerResumenColaborador(id);
-  }  
+  }
+
+  /**
+   * GET /colaboradores/:id/detalle-plan
+   * Obtiener el detalle del plan de induccion del colaborador
+   */
+  @Get(':id/detalle-plan')
+  async obtenerDetallePlanColaborador(@Param('id', ParseIntPipe) id: number) {
+    return this.colaboradoresService.obtenerDetallePlanColaborador(id);
+  }
 
 }

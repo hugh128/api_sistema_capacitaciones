@@ -86,7 +86,7 @@ const createFooter = (currentPage: number, pageCount: number): any => {
       },
       {
         text: `Página ${currentPage} de ${pageCount}`,
-        fontSize: 10,
+        fontSize: 9,
         alignment: 'right',
         margin: [0, 3, 25, 0]
       }
@@ -148,7 +148,7 @@ function generateCapacitacionesTable(gruposCapacitacion: GrupoCapacitacionDto[])
         { text: doc.capacitacion || '', alignment: 'center', fontSize: 8, margin: [0, 0, 0, 0] },
         { text: doc.evaluacion || '', alignment: 'center', fontSize: 8, margin: [0, 0, 0, 0] },
         { text: doc.calificacion || '', alignment: 'center', fontSize: 8, margin: [0, 0, 0, 0] },
-        { text: '', alignment: 'center', fontSize: 8, margin: [0, 0, 0, 0] },
+        { text: doc.nombreCapacitador || '', alignment: 'center', fontSize: 8, margin: [0, 0, 0, 0] },
         { text: '', alignment: 'center', fontSize: 8, margin: [0, 0, 0, 0] },
         { text: doc.estatus, alignment: 'center', fontSize: 8, fillColor: estatusFillColor, margin: [0, 0, 0, 0] },
       ];
@@ -297,7 +297,7 @@ export const crearInduccionDocumentalPdf = async (data: CrearInduccionDocumental
                     ],
                     [
                       { text: 'Fecha de inicio de inducción:', fontSize: 9, bold: true, alignment: 'right', margin: [0, 0, 0, 0] },
-                      { text: data.fechaFinInduccion, fontSize: 9, margin: [0, 0, 0, 0] }
+                      { text: data.fechaInicioInduccion, fontSize: 9, margin: [0, 0, 0, 0] }
                     ],
                     [
                       { text: 'Fecha de finalización de inducción:', fontSize: 9, bold: true, alignment: 'right', margin: [0, 0, 0, 0] },
