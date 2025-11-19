@@ -31,4 +31,17 @@ export class DocumentoController {
   remove(@Param('id') id: string) {
     return this.documentoService.remove(+id);
   }
+
+  @Post('cambio-version')
+  recapacitarPorNuevaVersionDocumento(@Body() body: {
+    idDocumento: number,
+    nuevaVersion: number,
+    usuario: string,
+  }) {
+    return this.documentoService.recapacitarPorNuevaVersionDocumento(
+      body.idDocumento,
+      body.nuevaVersion,
+      body.usuario
+    )
+  }
 }

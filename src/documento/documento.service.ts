@@ -3,7 +3,7 @@ import { CreateDocumentoDto } from './dto/create-documento.dto';
 import { UpdateDocumentoDto } from './dto/update-documento.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Documento } from './entities/documento.entity';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, Repository, DataSource } from 'typeorm';
 import { DatabaseErrorService } from 'src/common/database-error.service';
 
 @Injectable()
@@ -11,7 +11,8 @@ export class DocumentoService {
   constructor(@InjectRepository(Documento)
   private documentoRepository: Repository<Documento>,
   private readonly entityManager: EntityManager,
-  private readonly databaseErrorService: DatabaseErrorService
+  private readonly databaseErrorService: DatabaseErrorService,
+  private readonly dataSource: DataSource,
   ) {}
 
   async create(createDocumentoDto: CreateDocumentoDto) {
@@ -121,4 +122,27 @@ export class DocumentoService {
       this.databaseErrorService.handle(error);
     }
   }
+
+  async recapacitarPorNuevaVersionDocumento(idDocumento: number, nuevaVersion: number, usuario: string) {
+    try {
+      const pool = (this.dataSource.driver as any).master;
+      
+      const result = await pool.request()
+        .input('ID_DOCUMENTO', idDocumento)
+        .input('NUEVA_VERSION', nuevaVersion)
+        .input('USUARIO', usuario)
+        .execute('SP_RECAPACITAR_POR_NUEVA_VERSION ');
+
+      console.log(result);
+
+      return {
+        RESUMEN: result.recordsets[0] || [],
+        DETALLE_RECAPACITACION: result.recordsets[1] || [],
+      };
+
+    } catch (error) {
+      this.databaseErrorService.handle(error);
+    }
+  }
+
 }
