@@ -3,6 +3,7 @@ import { DocumentsModuleService } from './documents-module.service';
 import { CrearAsistenciaPdfDto } from './dto/crear-asistencia-pdf.dto';
 import type { Response } from 'express';
 import { CrearInduccionDocumentalDto } from './dto/crear-induccion-documental.dto';
+import { CreateExamDto } from './dto/crear-examen-pd.dto';
 
 @Controller('documents-module')
 export class DocumentsModuleController {
@@ -39,6 +40,23 @@ export class DocumentsModuleController {
       res.send(pdfBuffer);
     } catch (error) {
       res.status(500).json({ msg: 'Error al generar el PDF de induccion documental', error: error });
+    }
+  }
+
+  @Post('examen')
+  async generateExamen(@Body() data: CreateExamDto, @Res() res: Response) {
+    try {
+      const pdfBuffer = await this.documentsModuleService.generateExamen(data);
+      
+      res.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': 'attachment; filename=examen.pdf',
+        'Content-Length': pdfBuffer.length,
+      });
+      
+      res.send(pdfBuffer);
+    } catch (error) {
+      res.status(500).json({ msg: 'Error al generar el PDF de examen', error: error });
     }
   }
 
