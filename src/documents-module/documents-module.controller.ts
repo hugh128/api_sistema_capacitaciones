@@ -12,17 +12,17 @@ export class DocumentsModuleController {
   @Post('asistencia')
   async generatePdf(@Body() data: CrearAsistenciaPdfDto, @Res() res: Response) {
     try {
-      const pdfBuffer = await this.documentsModuleService.generatePdf(data);
+      const pdfBuffer = await this.documentsModuleService.generateListadoAsistencia(data);
       
       res.set({
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename=capacitacion.pdf',
+        'Content-Disposition': 'attachment; filename=listado-asistencia.pdf',
         'Content-Length': pdfBuffer.length,
       });
       
       res.send(pdfBuffer);
     } catch (error) {
-      res.status(500).json({ msg: 'Error al generar el PDF', error: error });
+      res.status(500).json({ msg: 'Error al generar el PDF de listado de asistencia', error: error });
     }
   }
 
