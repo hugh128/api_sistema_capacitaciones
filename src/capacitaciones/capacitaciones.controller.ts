@@ -563,5 +563,32 @@ export class CapacitacionesController {
       idPlan,
     );
   }
+
+  /**
+   * GET /capacitaciones/sesiones/:idSesion/plantilla-examen
+   * Obtiene plantilla para examen de una sesion
+   */
+  @Get('sesiones/:idSesion/plantilla-examen')
+  async obtenerPlantillaExamen(
+    @Param('idSesion', ParseIntPipe) idSesion: number,
+  ) {
+    return this.capacitacionesService.obtenerPlantillaExamen(idSesion);
+  }
+
+  /**
+   * POST /capacitaciones/sesiones/:idSesion/plantilla-examen
+   * Guarda plantilla para examen de una sesion
+   */
+  @Post('sesiones/:idSesion/plantilla-examen')
+  async guardarPlantillaExamen(
+    @Param('idSesion', ParseIntPipe) idSesion: number,
+    @Body() body: { plantilla: string, usuario: string },
+  ) {
+    return this.capacitacionesService.guardarPlantillaExamen(
+      idSesion,
+      body.plantilla,
+      body.usuario,
+    );
+  }
   
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, HttpException, HttpStatus, Post, Res } from '@nestjs/common';
 import { DocumentsModuleService } from './documents-module.service';
 import { CrearAsistenciaPdfDto } from './dto/crear-asistencia-pdf.dto';
 import type { Response } from 'express';
@@ -57,6 +57,42 @@ export class DocumentsModuleController {
       res.send(pdfBuffer);
     } catch (error) {
       res.status(500).json({ msg: 'Error al generar el PDF de examen', error: error });
+    }
+  }
+
+  @Post('examenes-combinados')
+  async generateCombinedExams(
+    @Body() examenes: CreateExamDto[], 
+    @Res() res: Response
+  ) {
+    try {
+      
+      const pdfBuffer = await this.documentsModuleService.generateCombinedExams(examenes);
+
+      const fecha = new Date().toISOString().split('T')[0];
+      const nombreArchivo = `examenes_combinados_${fecha}.pdf`;
+
+      res.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename=${nombreArchivo}`,
+        'Content-Length': pdfBuffer.length,
+      });
+      
+      res.send(pdfBuffer);
+      
+    } catch (error) {
+      
+      if (error instanceof HttpException) {
+        return res.status(error.getStatus()).json({
+          statusCode: error.getStatus(),
+          message: error.message,
+        });
+      }
+      
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Error al generar el PDF de exámenes combinados',
+      });
     }
   }
 

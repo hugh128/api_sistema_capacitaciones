@@ -1045,4 +1045,65 @@ export class CapacitacionesService {
     }
   }
 
+  /**
+   * Obtener plantilla de examen de una sesion
+   */
+  async obtenerPlantillaExamen(idSesion: number) {
+    try {
+      const result = await this.entityManager.query(
+        `EXEC SP_OBTENER_PLANTILLA_EXAMEN
+          @ID_SESION = @0`,
+          [idSesion]
+      );
+
+      const plantillaDB = result[0];
+
+      if (plantillaDB && plantillaDB.CONTENIDO_JSON) {
+        const contenidoValor = plantillaDB.CONTENIDO_JSON;
+        const contenidoJsonString =
+          typeof contenidoValor === 'string'
+            ? contenidoValor
+            : JSON.stringify(contenidoValor);
+
+        const contenidoJsonObjeto = JSON.parse(contenidoJsonString);
+
+        return contenidoJsonObjeto;
+      }
+
+      return null;
+
+    } catch (error) {
+      this.databaseErrorService.handle(error);
+    }
+  }
+
+  /**
+   * Guardar plantilla de examen de una sesion
+   */
+  async guardarPlantillaExamen(idSesion: number, plantilla: any, usuario: string) {
+    try {
+      const contenidoJsonString = JSON.stringify(plantilla);
+
+      const result = await this.entityManager.query(
+        `EXEC SP_GUARDAR_PLANTILLA_EXAMEN
+          @ID_SESION = @0,
+          @CONTENIDO_JSON = @1,
+          @USUARIO = @2`,
+          [
+            idSesion,
+            contenidoJsonString,
+            usuario,
+          ]
+      );
+
+      return {
+        success: true,
+        message: result[0]?.Mensaje || 'Plantilla guardada exitosamente.',
+        data: result[0],
+      };
+    } catch (error) {
+      this.databaseErrorService.handle(error);
+    }
+  }
+
 }
