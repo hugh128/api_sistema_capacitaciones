@@ -213,7 +213,8 @@ export class CapacitacionesService {
          @IDS_COLABORADORES = @7, 
          @OBSERVACIONES = @8,
          @USUARIO = @9,
-         @OBJETIVO = @10`,
+         @OBJETIVO = @10,
+         @VERSION = @11`,
         [
           dto.idCapacitacion,
           dto.nombreSesion || null,
@@ -226,6 +227,7 @@ export class CapacitacionesService {
           dto.observaciones || null,
           dto.usuario || null,
           dto.objetivo || null,
+          dto.version,
         ],
       );
 

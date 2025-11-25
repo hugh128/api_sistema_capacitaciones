@@ -86,4 +86,9 @@ export class AsignarColaboradoresDto {
   @IsOptional()
   @IsString()
   usuario: string;
+
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  version: number;
 }
