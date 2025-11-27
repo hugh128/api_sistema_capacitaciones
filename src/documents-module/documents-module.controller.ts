@@ -69,12 +69,12 @@ export class DocumentsModuleController {
       
       const pdfBuffer = await this.documentsModuleService.generateCombinedExams(examenes);
 
-      const fecha = new Date().toISOString().split('T')[0];
-      const nombreArchivo = `examenes_combinados_${fecha}.pdf`;
+      //const fecha = new Date().toISOString().split('T')[0];
+      //const nombreArchivo = `examenes_combinados_${fecha}.pdf`;
 
       res.set({
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename=${nombreArchivo}`,
+        'Content-Disposition': `attachment; filename=examenes.pdf`,
         'Content-Length': pdfBuffer.length,
       });
       

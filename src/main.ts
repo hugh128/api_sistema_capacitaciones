@@ -12,6 +12,7 @@ async function bootstrap() {
     origin: `http://localhost:${FRONT_PORT}`,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
+    exposedHeaders: ['Content-Disposition', 'Content-Length'],
   });
 
   app.useGlobalPipes(
