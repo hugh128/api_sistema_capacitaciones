@@ -49,6 +49,9 @@ export class PuestoService {
       return await this.puestoReposity.find({
         relations: {
           DEPARTAMENTO: true
+        },
+        order: {
+          NOMBRE: 'ASC'
         }
       })
     } catch (error) {

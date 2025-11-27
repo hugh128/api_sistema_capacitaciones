@@ -477,10 +477,18 @@ export const crearListadoAsistencia = async (data: CrearAsistenciaPdfDto): Promi
           widths: ['100%'],
           body: [
             [
-              { text: 'OBSERVACIONES:', fontSize: 11, bold: true, alignment: 'left', margin: [0, 5, 0, 5] }
+              { text: 'OBSERVACIONES:', fontSize: 11, bold: true, alignment: 'left', margin: [0, 10, 0, 0] }
             ],
             [
-              { text: data.observaciones || '', margin: [10, 10, 10, 10] }
+              {
+                text: [
+                  { text: data.observaciones || '' },
+                  { text: '\n' },
+                  { text: '\n' },
+                  { text: data.sesion || '', alignment: 'right', italics: true }
+                ],
+                margin: [10, 10, 10, 10]
+              }
             ]
           ]
         },

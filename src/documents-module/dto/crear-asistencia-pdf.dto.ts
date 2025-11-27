@@ -30,4 +30,7 @@ export class CrearAsistenciaPdfDto {
   
   // Observaciones
   observaciones?: string;
+
+  // Numero de sesion
+  sesion?: string;
 }

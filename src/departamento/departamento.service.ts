@@ -50,6 +50,9 @@ export class DepartamentoService {
       return await this.departamentoRepository.find({
         relations: {
           ENCARGADO: true
+        },
+        order: {
+          NOMBRE: 'ASC'
         }
       });
     } catch (error) {
