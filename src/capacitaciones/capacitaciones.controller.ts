@@ -17,12 +17,12 @@ import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
 import { CapacitacionesService } from './capacitaciones.service';
 import { AplicarPlanDto } from './dto/aplicar-plan.dto';
 import { AplicarProgramaDto } from './dto/aplicar-programa.dto';
-import { AsignarColaboradoresDto } from './dto/asignar-colaboradores.dto';
 import { RegistrarAsistenciaDto } from './dto/registrar-asistencia.dto';
 import { ActualizarEstadoCapacitacionDto } from './dto/actualizar-estado.dto';
 import { ActualizarEstadoSesionDto } from './dto/actualizar-estado-sesion.dto';
 import { RegistrarListadoAsistenciaDto } from './dto/RegistrarListadoAsistenciaDto';
 import { ColaboradorAsistenciaDto } from './dto/ColaboradorAsistenciaDto';
+import { CrearSesionAsignarColaboradoresDto } from './dto/crear-sesion-y-asignar-colaboradores.dto';
 
 @Controller('capacitaciones')
 export class CapacitacionesController {
@@ -115,25 +115,14 @@ export class CapacitacionesController {
   }
 
   /**
-   * POST /capacitaciones/asignar
-   * Asigna colaboradores a una capacitación específica (RRHH)
+   * POST /capacitaciones/asignar/sesion
+   * Crea sesion y asigna colaboradores para una capacitación específica (RRHH)
    */
-  @Post('asignar')
-  async asignarColaboradores(
-    @Body(ValidationPipe) dto: AsignarColaboradoresDto,
+  @Post('crear/sesion')
+  async crearSesionAsignarColaboradores(
+    @Body(ValidationPipe) dto: CrearSesionAsignarColaboradoresDto,
   ) {
-    return this.capacitacionesService.asignarColaboradores(dto);
-  }
-
-  /**
-   * POST /capacitaciones/sesion/asignar
-   * Asigna colaboradores a una sesion de una capacitación específica (RRHH)
-   */
-  @Post('asignar/sesion')
-  async asignarColaboradoresSesion(
-    @Body(ValidationPipe) dto: AsignarColaboradoresDto,
-  ) {
-    return this.capacitacionesService.asignarColaboradoresSesion(dto);
+    return this.capacitacionesService.crearSesionAsignarColaboradores(dto);
   }
 
   /**

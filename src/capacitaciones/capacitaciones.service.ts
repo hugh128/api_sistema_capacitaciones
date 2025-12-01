@@ -2,7 +2,6 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { StorageService } from '../storage/storage.service';
 import { AplicarPlanDto } from './dto/aplicar-plan.dto';
 import { AplicarProgramaDto } from './dto/aplicar-programa.dto';
-import { AsignarColaboradoresDto } from './dto/asignar-colaboradores.dto';
 import { RegistrarAsistenciaDto } from './dto/registrar-asistencia.dto';
 import { ActualizarEstadoCapacitacionDto } from './dto/actualizar-estado.dto';
 import { DataSource, EntityManager } from 'typeorm';
@@ -10,6 +9,7 @@ import { DatabaseErrorService } from 'src/common/database-error.service';
 import { ActualizarEstadoSesionDto } from './dto/actualizar-estado-sesion.dto';
 import { RegistrarListadoAsistenciaDto } from './dto/RegistrarListadoAsistenciaDto';
 import { ColaboradorAsistenciaDto } from './dto/ColaboradorAsistenciaDto';
+import { CrearSesionAsignarColaboradoresDto } from './dto/crear-sesion-y-asignar-colaboradores.dto';
 
 @Injectable()
 export class CapacitacionesService {
@@ -159,81 +159,51 @@ export class CapacitacionesService {
   }
 
   /**
-   * Asignar colaboradores a una capacitación específica
+   * Crea sesion y asigna colaboradores para una capacitación específica (RRHH)
    */
-  async asignarColaboradores(dto: AsignarColaboradoresDto) {
+  async crearSesionAsignarColaboradores(dto: CrearSesionAsignarColaboradoresDto) {
     try {
       const result = await this.entityManager.query(
-        `EXEC SP_ASIGNAR_COLABORADORES_CAPACITACION 
-         @ID_CAPACITACION = @0,
-         @IDS_COLABORADORES = @1,
-         @OBJETIVO = @2,
-         @TIPO_CAPACITACION = @3, 
-         @MODALIDAD = @4, 
-         @APLICA_EXAMEN = @5, 
-         @NOTA_MINIMA = @6, 
-         @APLICA_DIPLOMA = @7`,
+        `EXEC SP_CREAR_SESION_Y_ASIGNAR_COLABORADORES 
+          @ID_CAPACITACION = @0,
+          @IDS_COLABORADORES = @1, 
+          @CAPACITADOR_ID = @2, 
+          @FECHA_PROGRAMADA = @3, 
+          @HORA_INICIO = @4, 
+          @HORA_FIN = @5, 
+          @NOMBRE_SESION = @6,
+          @TIPO_CAPACITACION = @7,
+          @MODALIDAD = @8,
+          @GRUPO_OBJETIVO = @9, 
+          @OBJETIVO = @10,
+          @APLICA_EXAMEN = @11,
+          @NOTA_MINIMA = @12,
+          @APLICA_DIPLOMA = @13,
+          @OBSERVACIONES = @14,
+          @USUARIO = @15`,
         [
           dto.idCapacitacion,
           dto.idsColaboradores.join(','),
-          dto.objetivo || null,
+          dto.capacitadorId || null,
+          dto.fechaProgramada || null,
+          dto.horaInicio || null,
+          dto.horaFin || null,
+          dto.nombreSesion || null,
           dto.tipoCapacitacion || null,
           dto.modalidad || null,
+          dto.grupoObjetivo || null,
+          dto.objetivo || null,
           dto.aplicaExamen,
           dto.notaMinima || null,
           dto.aplicaDiploma,
-        ],
-      );
-
-      return {
-        success: true,
-        message: result[0]?.Mensaje || 'Colaboradores asignados exitosamente',
-        data: result[0],
-      };
-    } catch (error) {
-      this.logger.error('Error al asignar colaboradores', error);
-      this.databaseErrorService.handle(error);
-    }
-  }
-
-  /**
-   * Asignar colaboradores a una sesion de una capacitación específica
-   */
-  async asignarColaboradoresSesion(dto: AsignarColaboradoresDto) {
-    try {
-      const result = await this.entityManager.query(
-        `EXEC SP_CREAR_SESION_CAPACITACION 
-         @ID_CAPACITACION = @0,
-         @NOMBRE_SESION = @1,
-         @CAPACITADOR_ID = @2, 
-         @FECHA_INICIO = @3, 
-         @HORA_INICIO = @4, 
-         @HORA_FIN = @5, 
-         @GRUPO_OBJETIVO = @6, 
-         @IDS_COLABORADORES = @7, 
-         @OBSERVACIONES = @8,
-         @USUARIO = @9,
-         @OBJETIVO = @10,
-         @VERSION = @11`,
-        [
-          dto.idCapacitacion,
-          dto.nombreSesion || null,
-          dto.capacitadorId || null,
-          dto.fechaInicio || null,
-          dto.horaInicio || null,
-          dto.horaFin || null,
-          dto.grupoObjetivo || null,
-          dto.idsColaboradores.join(','),
           dto.observaciones || null,
           dto.usuario || null,
-          dto.objetivo || null,
-          dto.version,
         ],
       );
 
       return {
         success: true,
-        message: result[0]?.Mensaje || 'Colaboradores asignados exitosamente a la sesion',
+        message: result[0]?.Mensaje || 'Sesion creada y colaboradores asignados exitosamente.',
         data: result[0],
       };
     } catch (error) {
@@ -241,7 +211,6 @@ export class CapacitacionesService {
       this.databaseErrorService.handle(error);
     }
   }
-
 
   /**
    * Obtener colaboradores de una capacitación

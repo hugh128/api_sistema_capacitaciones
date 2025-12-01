@@ -23,6 +23,11 @@ export class PlanCapacitacionController {
     return this.planCapacitacionService.findOne(+id);
   }
 
+  @Get(':idPlan/detalle-colaboradores')
+  obtenerDetallePlanConColaboradores(@Param('idPlan') idPlan: string) {
+    return this.planCapacitacionService.obtenerDetallePlanConColaboradores(+idPlan);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updatePlanCapacitacionDto: UpdatePlanCapacitacionDto) {
     return this.planCapacitacionService.update(+id, updatePlanCapacitacionDto);

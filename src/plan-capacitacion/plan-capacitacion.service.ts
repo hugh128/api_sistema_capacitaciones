@@ -149,6 +149,25 @@ export class PlanCapacitacionService {
     }
   }
 
+  async obtenerDetallePlanConColaboradores(idPlan: number) {
+    try {
+      const pool = (this.dataSource.driver as any).master;
+      
+      const result = await pool.request()
+        .input('ID_PLAN', idPlan)
+        .execute('SP_OBTENER_PLAN_CON_COLABORADORES');
+      
+      return {
+        DETALLE_PLAN: result.recordsets[0]?.[0] || null,
+        COLABORADORES_PLAN: result.recordsets[1] || [],
+        CAPACITACIONES_PLAN: result.recordsets[2] || []
+      };
+
+    } catch (error) {
+      this.databaseErrorService.handle(error);
+    }
+  }
+
   async update(id: number, updatePlanCapacitacionDto: UpdatePlanCapacitacionDto) {
     const {
       NOMBRE,

@@ -128,8 +128,6 @@ export class ProgramaDetalleService {
         })),
       }));
 
-      console.log(formattedDetails)
-
       return formattedDetails;
     } catch (error) {
       this.databaseErrorService.handle(error);

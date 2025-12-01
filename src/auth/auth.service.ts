@@ -80,9 +80,6 @@ export class AuthService {
         PERSONA_ID: usuario.PERSONA_ID
       };
 
-      console.log("Usuario autenticado");
-      console.log(usuarioAuth);
-
       return { 
         MESSAGE: "Inicio de sesion exitoso",
         USUARIO: { DATA: usuarioAuth, TOKEN: token } 

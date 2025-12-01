@@ -133,8 +133,6 @@ export class DocumentoService {
         .input('USUARIO', usuario)
         .execute('SP_RECAPACITAR_POR_NUEVA_VERSION ');
 
-      console.log(result);
-
       return {
         RESUMEN: result.recordsets[0] || [],
         DETALLE_RECAPACITACION: result.recordsets[1] || [],

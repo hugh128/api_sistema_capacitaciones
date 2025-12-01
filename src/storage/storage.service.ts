@@ -205,7 +205,7 @@ export class StorageService {
       await this.s3Client.send(command);
       return true;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return false;
     }
   }
