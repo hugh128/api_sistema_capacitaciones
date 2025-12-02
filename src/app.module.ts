@@ -29,6 +29,7 @@ import { StorageModule } from './storage/storage.module';
 import { ColaboradoresModule } from './colaboradores/colaboradores.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { DocumentsModuleModule } from './documents-module/documents-module.module';
+import { ReportsModuleModule } from './reports-module/reports-module.module';
 
 
 @Module({
@@ -84,6 +85,7 @@ import { DocumentsModuleModule } from './documents-module/documents-module.modul
     ColaboradoresModule,
     DashboardModule,
     DocumentsModuleModule,
+    ReportsModuleModule,
   ],
 })
 export class AppModule {}
