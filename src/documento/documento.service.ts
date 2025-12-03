@@ -61,6 +61,22 @@ export class DocumentoService {
     }
   }
 
+  async findAllActives(): Promise<Documento[] | []> {
+    try {
+      return this.documentoRepository.find({
+        relations: {
+          DOCUMENTOS_ASOCIADOS: true
+        },
+        where: {
+          ESTATUS: 'VIGENTE'
+        }
+        
+      });
+    } catch (error) {
+      this.databaseErrorService.handle(error)
+    }
+  }
+
   async findOne(id: number): Promise<Documento | null>   {
     try {
       const result = await this.documentoRepository.findOne({
@@ -123,7 +139,7 @@ export class DocumentoService {
     }
   }
 
-  async recapacitarPorNuevaVersionDocumento(idDocumento: number, nuevaVersion: number, usuario: string) {
+  async recapacitarPorNuevaVersionDocumento(idDocumento: number, nuevaVersion: number, requiereRecapacitacion: boolean, usuario: string) {
     try {
       const pool = (this.dataSource.driver as any).master;
       
@@ -131,7 +147,8 @@ export class DocumentoService {
         .input('ID_DOCUMENTO', idDocumento)
         .input('NUEVA_VERSION', nuevaVersion)
         .input('USUARIO', usuario)
-        .execute('SP_RECAPACITAR_POR_NUEVA_VERSION ');
+        .input('REQUIERE_RECAPACITACION', requiereRecapacitacion)
+        .execute('SP_RECAPACITAR_POR_NUEVA_VERSION');
 
       return {
         RESUMEN: result.recordsets[0] || [],

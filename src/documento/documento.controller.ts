@@ -17,6 +17,11 @@ export class DocumentoController {
     return this.documentoService.findAll();
   }
 
+  @Get('vigentes')
+  findAllActives() {
+    return this.documentoService.findAllActives();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.documentoService.findOne(+id);
@@ -36,11 +41,13 @@ export class DocumentoController {
   recapacitarPorNuevaVersionDocumento(@Body() body: {
     idDocumento: number,
     nuevaVersion: number,
+    requiereRecapacitacion: boolean,
     usuario: string,
   }) {
     return this.documentoService.recapacitarPorNuevaVersionDocumento(
       body.idDocumento,
       body.nuevaVersion,
+      body.requiereRecapacitacion,
       body.usuario
     )
   }
