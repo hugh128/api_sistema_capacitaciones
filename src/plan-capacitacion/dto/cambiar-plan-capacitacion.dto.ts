@@ -17,7 +17,7 @@ export class CambiarPlanCapacitacionDto {
   @IsInt({ each: true })
   @ArrayUnique()
   @IsOptional()
-  IDS_CAPACITACIONES_MIGRAR: number[];
+  IDS_DOCUMENTOS_MIGRAR: number[];
 
   @IsString()
   @IsOptional()

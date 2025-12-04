@@ -30,6 +30,7 @@ import { ColaboradoresModule } from './colaboradores/colaboradores.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { DocumentsModuleModule } from './documents-module/documents-module.module';
 import { ReportsModuleModule } from './reports-module/reports-module.module';
+import { PlantillasModuleModule } from './plantillas-module/plantillas-module.module';
 
 
 @Module({
@@ -86,6 +87,7 @@ import { ReportsModuleModule } from './reports-module/reports-module.module';
     DashboardModule,
     DocumentsModuleModule,
     ReportsModuleModule,
+    PlantillasModuleModule,
   ],
 })
 export class AppModule {}

@@ -291,13 +291,13 @@ export class PlanCapacitacionService {
           @ID_COLABORADOR = @0,
           @NUEVO_DEPARTAMENTO_ID = @1,
           @NUEVO_PUESTO_ID = @2,
-          @IDS_CAPACITACIONES_MIGRAR = @3,
+          @IDS_DOCUMENTOS_MIGRAR = @3,
           @USUARIO = @4`,
         [
           dto.ID_COLABORADOR,
           dto.NUEVO_DEPARTAMENTO_ID,
           dto.NUEVO_PUESTO_ID,
-          dto.IDS_CAPACITACIONES_MIGRAR.join(''),
+          dto.IDS_DOCUMENTOS_MIGRAR.join(''),
           dto.USUARIO
         ]
       );

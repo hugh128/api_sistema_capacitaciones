@@ -70,8 +70,40 @@ export class StorageService {
 
       // Retornar URL pública
       const fileUrl = `${this.publicUrl}/${fileName}`;
-      this.logger.log(`Archivo subido exitosamente: ${fileUrl}`);
+      
+      return fileUrl;
+    } catch (error) {
+      this.logger.error('Error al subir archivo a R2', error);
+      throw new Error('Error al subir archivo a almacenamiento');
+    }
+  }
 
+  /**
+   * Sube un archivo a Cloudflare R2
+   * @param file - Archivo a subir (Multer.File)
+   * @param fullPath - Carpeta y nombre del archivo dentro del bucket (ej: 'capacitaciones/examenes/exmen_1.[ext]')
+   * @returns URL pública del archivo
+   */
+  async uploadFileWithName(
+    file: Express.Multer.File,
+    fullPath: string,
+  ): Promise<string> {
+    try {
+      const command = new PutObjectCommand({
+        Bucket: this.bucketName,
+        Key: fullPath,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+        Metadata: {
+          originalName: file.originalname,
+          uploadDate: new Date().toISOString(),
+        },
+      });
+      
+      await this.s3Client.send(command);
+      
+      const fileUrl = `${this.publicUrl}/${fullPath}`;
+      
       return fileUrl;
     } catch (error) {
       this.logger.error('Error al subir archivo a R2', error);
