@@ -16,7 +16,7 @@ export class Permiso {
     @Column({ name: 'DESCRIPCION', type: 'nvarchar', length: 255, nullable: false })
     DESCRIPCION: string;
 
-    @Column({ name: 'CATEGORIA_ID', nullable: false })
+    @Column({ name: 'CATEGORIA_ID', nullable: true })
     CATEGORIA_ID: number;
 
     // Relación Many-to-One con CATEGORIA_PERMISO

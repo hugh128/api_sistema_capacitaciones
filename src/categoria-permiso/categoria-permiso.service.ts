@@ -18,17 +18,19 @@ export class CategoriaPermisoService {
   async create(createCategoriaPermisoDto: CreateCategoriaPermisoDto) {
     try {
       
-      const { CLAVE, NOMBRE, DESCRIPCION } = createCategoriaPermisoDto
+      const { CLAVE, NOMBRE, DESCRIPCION, PERMISOS_IDS } = createCategoriaPermisoDto
 
       const result = await this.entityManager.query(
         `EXEC sp_CATEGORIA_PERMISO_ALTA
           @CLAVE = @0,
           @NOMBRE = @1,
-          @DESCRIPCION = @2`,
+          @DESCRIPCION = @2,
+          @PERMISOS_IDS = @3`,
         [
           CLAVE,
           NOMBRE,
-          DESCRIPCION
+          DESCRIPCION,
+          PERMISOS_IDS.join(','),
         ]
       );
 
@@ -75,20 +77,23 @@ export class CategoriaPermisoService {
 
   async update(id: number, updateCategoriaPermisoDto: UpdateCategoriaPermisoDto) {
     try {
+      console.log("api")
       
-      const { NOMBRE, CLAVE, DESCRIPCION } = updateCategoriaPermisoDto;
+      const { NOMBRE, CLAVE, DESCRIPCION, PERMISOS_IDS } = updateCategoriaPermisoDto;
 
       const result = await this.entityManager.query(
         `EXEC sp_CATEGORIA_PERMISO_ACTUALIZAR
           @ID_CATEGORIA = @0,
           @CLAVE = @1,
           @NOMBRE = @2,
-          @DESCRIPCION=@3`,
+          @DESCRIPCION = @3,
+          @PERMISOS_IDS = @4`,
         [
           id,
           CLAVE,
           NOMBRE,
-          DESCRIPCION
+          DESCRIPCION,
+          PERMISOS_IDS?.join(',') || '',
         ]
       );
 
