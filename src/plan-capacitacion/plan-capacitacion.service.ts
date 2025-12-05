@@ -308,4 +308,19 @@ export class PlanCapacitacionService {
     }
   }
 
+  async sincronizarCapacitacionesPlan(idPlan: number, usuario: string) {
+    try {
+      const pool = (this.dataSource.driver as any).master;
+      
+      const result = await pool.request()
+        .input('ID_PLAN', idPlan)
+        .input('USUARIO', usuario)
+        .execute('SP_SINCRONIZAR_CAPACITACIONES_PLAN');
+
+      return result;
+    } catch (error) {
+      this.databaseErrorService.handle(error);
+    }
+  }
+
 }

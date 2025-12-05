@@ -52,4 +52,9 @@ export class PlanCapacitacionController {
   cambiarPlanColaborador(@Body(ValidationPipe) dto: CambiarPlanCapacitacionDto) {
     return this.planCapacitacionService.cambiarPlanColaborador(dto);
   }
+
+  @Post('sincronizar/capacitaciones/plan')
+  sincronizarCapacitacionesPlan(@Body(ValidationPipe) body: { idPlan: number, usuario: string}) {
+    return this.planCapacitacionService.sincronizarCapacitacionesPlan(body.idPlan, body.usuario);
+  }
 }
