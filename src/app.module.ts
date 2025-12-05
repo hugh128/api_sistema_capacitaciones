@@ -14,7 +14,6 @@ import { PermisoModule } from './permiso/permiso.module';
 import { RolModule } from './rol/rol.module';
 import { RolPermisoModule } from './rol-permiso/rol-permiso.module';
 import { UsuarioRolModule } from './usuario-rol/usuario-rol.module';
-import { PdfModule } from './pdf-module/pdf-module.module';
 import { PlanCapacitacionModule } from './plan-capacitacion/plan-capacitacion.module';
 import { DocumentoPlanModule } from './documento-plan/documento-plan.module';
 import { PlanPuestoModule } from './plan-puesto/plan-puesto.module';
@@ -71,7 +70,6 @@ import { PlantillasModuleModule } from './plantillas-module/plantillas-module.mo
     RolModule,
     RolPermisoModule,
     UsuarioRolModule,
-    PdfModule,
     PlanCapacitacionModule,
     DocumentoPlanModule,
     PlanPuestoModule,

@@ -254,7 +254,7 @@ export class ExcelGeneratorService {
         item['% Cumplimiento'],
         item['Estado Plan'],
         this.formatearFecha(item['Fecha Inicio Plan']),
-        item['Última Capacitación'] ? this.formatearFecha(item['Última Capacitación']) : 'N/A',
+        item['Última Capacitación'] ? this.formatearFecha(item['Última Capacitación']) : '',
         item['Días desde inicio'],
       ]);
 
@@ -347,7 +347,7 @@ export class ExcelGeneratorService {
    * Aplica estilo según el porcentaje de cumplimiento
    */
   private aplicarEstiloPorcentaje(row: ExcelJS.Row, porcentaje: number) {
-    const porcentajeCell = row.getCell(11); // Columna de % Cumplimiento
+    const porcentajeCell = row.getCell(12); // Columna de % Cumplimiento
     
     if (porcentaje >= 80) {
       porcentajeCell.fill = {
@@ -372,7 +372,7 @@ export class ExcelGeneratorService {
       porcentajeCell.font = { color: { argb: 'FF9C0006' } };
     }
 
-    porcentajeCell.value = `${porcentaje}%`;
+    porcentajeCell.value = porcentaje;
   }
 
   /**

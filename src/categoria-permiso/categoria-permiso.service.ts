@@ -77,8 +77,6 @@ export class CategoriaPermisoService {
 
   async update(id: number, updateCategoriaPermisoDto: UpdateCategoriaPermisoDto) {
     try {
-      console.log("api")
-      
       const { NOMBRE, CLAVE, DESCRIPCION, PERMISOS_IDS } = updateCategoriaPermisoDto;
 
       const result = await this.entityManager.query(
