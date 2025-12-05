@@ -474,14 +474,18 @@ export class CapacitacionesService {
   async subirListaAsistenciaSesion(
     dto: RegistrarListadoAsistenciaDto,
     idSesion: number,
-    file: Express.Multer.File,
+    file?: Express.Multer.File,
   ) {
     try {
-      const urlListaAsistencia = await this.storageService.uploadFile(
-        file,
-        'capacitaciones/listas-asistencia',
-      );
-
+      let urlListaAsistencia: string | null = null;
+      
+      if (file) {
+        urlListaAsistencia = await this.storageService.uploadFile(
+          file,
+          'capacitaciones/listas-asistencia',
+        );
+      }
+      
       await this.dataSource.query(
         `EXEC SP_FINALIZAR_SESION_CAPACITADOR
           @ID_SESION = @0,
@@ -491,10 +495,12 @@ export class CapacitacionesService {
         `,
         [idSesion, dto.idCapacitador, urlListaAsistencia, dto.observaciones],
       );
-
+      
       return {
         success: true,
-        message: 'Lista de asistencia subida y sesion finalizada exitosamente.',
+        message: file 
+          ? 'Lista de asistencia subida y sesion finalizada exitosamente.'
+          : 'Sesión finalizada exitosamente con archivo existente.',
         url: urlListaAsistencia,
       };
     } catch (error) {
@@ -617,7 +623,7 @@ export class CapacitacionesService {
         `EXEC SP_RRHH_APROBAR_SESION 
          @ID_SESION = @0, 
          @USUARIO_RRHH = @1,
-         @OBSERVACIONES_RRHH = @2`,
+         @OBSERVACIONES_FINALES = @2`,
         [
           idSesion,
           usuario,
@@ -636,6 +642,37 @@ export class CapacitacionesService {
     }
   }
 
+  /**
+   * RRHH devuelve una sesion al capacitador
+   */
+  async devolverSesion(
+    idSesion: number,
+    usuario: string,
+    observaciones: string
+  ) {
+    try {
+      const result = await this.entityManager.query(
+        `EXEC SP_DEVOLVER_SESION 
+         @ID_SESION = @0, 
+         @MOTIVO_RECHAZO = @1,
+         @USUARIO = @2`,
+        [
+          idSesion,
+          observaciones,
+          usuario,
+        ],
+      );
+
+      return {
+        success: true,
+        message: result[0]?.Mensaje || 'Sesion devuelta exitosamente.',
+        data: result[0],
+      };
+    } catch (error) {
+      this.logger.error('Error al devolver sesion', error);
+      this.databaseErrorService.handle(error);
+    }
+  }
 
   /**
    * Subir examen individual

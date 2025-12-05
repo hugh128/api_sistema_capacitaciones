@@ -399,21 +399,18 @@ export class CapacitacionesController {
   async finalizarSesion(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: { idCapacitador: number, observaciones?: string },
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
-    if (!file) {
-      throw new BadRequestException('Debe proporcionar un archivo PDF');
-    }
 
-    if (file.mimetype !== 'application/pdf') {
+    if (file && file.mimetype !== 'application/pdf') {
       throw new BadRequestException('El archivo debe ser un PDF');
     }
-
+    
     const dto: RegistrarListadoAsistenciaDto = {
       idCapacitador: body.idCapacitador,
       observaciones: body.observaciones
     }
-
+    
     return this.capacitacionesService.subirListaAsistenciaSesion(dto, id, file);
   }
 
@@ -467,6 +464,22 @@ export class CapacitacionesController {
     @Body() body: { usuario: string, observaciones: string},
   ) {
     return await this.capacitacionesService.aprobarSesion(
+      id,
+      body.usuario,
+      body.observaciones,
+    );
+  }
+
+  /**
+   * PUT /capacitaciones/:id/sesion/devolver
+   * RRHH devuelve una sesion al capacitador
+   */
+  @Put(':id/sesion/devolver')
+  async devolverSesion(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { usuario: string, observaciones: string},
+  ) {
+    return await this.capacitacionesService.devolverSesion(
       id,
       body.usuario,
       body.observaciones,
