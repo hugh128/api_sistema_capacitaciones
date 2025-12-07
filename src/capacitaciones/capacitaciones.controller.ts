@@ -23,6 +23,7 @@ import { ActualizarEstadoSesionDto } from './dto/actualizar-estado-sesion.dto';
 import { RegistrarListadoAsistenciaDto } from './dto/RegistrarListadoAsistenciaDto';
 import { ColaboradorAsistenciaDto } from './dto/ColaboradorAsistenciaDto';
 import { CrearSesionAsignarColaboradoresDto } from './dto/crear-sesion-y-asignar-colaboradores.dto';
+import { EditarSesionDto } from './dto/editar-sesion.dto';
 
 @Controller('capacitaciones')
 export class CapacitacionesController {
@@ -123,6 +124,17 @@ export class CapacitacionesController {
     @Body(ValidationPipe) dto: CrearSesionAsignarColaboradoresDto,
   ) {
     return this.capacitacionesService.crearSesionAsignarColaboradores(dto);
+  }
+
+  /**
+   * PUT /capacitaciones/editar/sesion
+   * Edita sesion y colaboradores de una sesion específica (RRHH)
+   */
+  @Put('editar/sesion')
+  async editarSesionAsignarColaboradores(
+    @Body(ValidationPipe) dto: EditarSesionDto,
+  ) {
+    return this.capacitacionesService.editarSesionAsignarColaboradores(dto);
   }
 
   /**

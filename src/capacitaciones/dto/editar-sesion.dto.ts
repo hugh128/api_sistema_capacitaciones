@@ -1,0 +1,92 @@
+import {
+  IsInt,
+  IsString,
+  IsOptional,
+  IsArray,
+  IsNumber,
+  IsDateString,
+  Matches,
+  Min,
+  Max,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class EditarSesionDto {
+  @IsInt()
+  @Type(() => Number)
+  idSesion: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  capacitadorId?: number;
+
+  @IsOptional()
+  @IsDateString()
+  fechaProgramada?: string;
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/, {
+    message: 'Hora de inicio debe estar en formato HH:MM o HH:MM:SS',
+  })
+  horaInicio?: string; // Formato: "14:00:00" o "14:00"
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/, {
+    message: 'Hora de fin debe estar en formato HH:MM o HH:MM:SS',
+  })
+  horaFin?: string; // Formato: "16:30:00" o "16:30"
+
+  @IsOptional()
+  @IsString()
+  nombreSesion: string;
+
+  @IsOptional()
+  @IsString()
+  tipoCapacitacion?: string; // 'TALLER', 'CURSO', 'CHARLA', 'OTRO'
+
+  @IsOptional()
+  @IsString()
+  modalidad?: string; // 'INTERNA', 'EXTERNA'
+
+  @IsOptional()
+  @IsString()
+  grupoObjetivo?: string;
+
+  @IsOptional()
+  @IsString()
+  objetivo?: string;
+
+  @IsOptional()
+  aplicaExamen?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  @Min(0)
+  @Max(100)
+  notaMinima?: number;
+
+  @IsOptional()
+  aplicaDiploma?: boolean;
+
+  @IsOptional()
+  @IsString()
+  observaciones?: string;
+
+  @IsArray()
+  @IsInt({ each: true })
+  @Type(() => Number)
+  idsColaboradoresAgregar: number[] = [];
+
+  @IsArray()
+  @IsInt({ each: true })
+  @Type(() => Number)
+  idsColaboradoresQuitar: number[] = [];
+
+  @IsOptional()
+  @IsString()
+  usuario: string;
+}

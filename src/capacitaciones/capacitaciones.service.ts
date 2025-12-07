@@ -10,6 +10,7 @@ import { ActualizarEstadoSesionDto } from './dto/actualizar-estado-sesion.dto';
 import { RegistrarListadoAsistenciaDto } from './dto/RegistrarListadoAsistenciaDto';
 import { ColaboradorAsistenciaDto } from './dto/ColaboradorAsistenciaDto';
 import { CrearSesionAsignarColaboradoresDto } from './dto/crear-sesion-y-asignar-colaboradores.dto';
+import { EditarSesionDto } from './dto/editar-sesion.dto';
 
 @Injectable()
 export class CapacitacionesService {
@@ -208,6 +209,66 @@ export class CapacitacionesService {
       };
     } catch (error) {
       this.logger.error('Error al asignar colaboradores', error);
+      this.databaseErrorService.handle(error);
+    }
+  }
+
+  /**
+   * Edita sesion y colaboradores de una sesion específica (RRHH)
+   */
+  async editarSesionAsignarColaboradores(dto: EditarSesionDto) {
+    try {
+      const result = await this.entityManager.query(
+        `EXEC SP_EDITAR_SESION 
+          @ID_SESION = @0,
+          @CAPACITADOR_ID = @1,
+          @FECHA_PROGRAMADA = @2,
+          @HORA_INICIO = @3,
+          @HORA_FIN = @4,
+          @NOMBRE_SESION = @5,
+          @TIPO_CAPACITACION = @6,
+          @MODALIDAD = @7,
+          @GRUPO_OBJETIVO = @8,
+          @OBJETIVO = @9,
+          @APLICA_EXAMEN = @10,
+          @NOTA_MINIMA = @11,
+          @APLICA_DIPLOMA = @12,
+          @OBSERVACIONES = @13,
+          @IDS_COLABORADORES_AGREGAR = @14,
+          @IDS_COLABORADORES_QUITAR = @15,
+          @USUARIO = @16`,
+        [
+          dto.idSesion,
+          dto.capacitadorId || null,
+          dto.fechaProgramada || null,
+          dto.horaInicio || null,
+          dto.horaFin || null,
+          dto.nombreSesion || null,
+          dto.tipoCapacitacion || null,
+          dto.modalidad || null,
+          dto.grupoObjetivo || null,
+          dto.objetivo || null,
+          dto.aplicaExamen ?? null,
+          dto.notaMinima || null,
+          dto.aplicaDiploma ?? null,
+          dto.observaciones || null,
+          dto.idsColaboradoresAgregar?.length > 0 
+            ? dto.idsColaboradoresAgregar.join(',') 
+            : null,
+          dto.idsColaboradoresQuitar?.length > 0 
+            ? dto.idsColaboradoresQuitar.join(',') 
+            : null,
+          dto.usuario || 'SYSTEM',
+        ],
+      );
+
+      return {
+        success: true,
+        message: result[0]?.Mensaje || 'Sesión editada exitosamente.',
+        data: result[0],
+      };
+    } catch (error) {
+      this.logger.error('Error al editar sesión', error);
       this.databaseErrorService.handle(error);
     }
   }

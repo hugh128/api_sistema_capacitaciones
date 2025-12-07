@@ -61,14 +61,13 @@ export class StorageService {
         Body: file.buffer,
         ContentType: file.mimetype,
         Metadata: {
-          originalName: file.originalname,
+          originalName: encodeURIComponent(file.originalname),
           uploadDate: new Date().toISOString(),
         },
       });
 
       await this.s3Client.send(command);
 
-      // Retornar URL pública
       const fileUrl = `${this.publicUrl}/${fileName}`;
       
       return fileUrl;
@@ -95,7 +94,7 @@ export class StorageService {
         Body: file.buffer,
         ContentType: file.mimetype,
         Metadata: {
-          originalName: file.originalname,
+          originalName: encodeURIComponent(file.originalname),
           uploadDate: new Date().toISOString(),
         },
       });
