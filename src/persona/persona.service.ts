@@ -70,6 +70,30 @@ export class PersonaService {
           EMPRESA: true,
           DEPARTAMENTO: true,
           PUESTO: true
+        },
+        order: {
+          NOMBRE: 'asc',
+        }
+      });
+    } catch (error) {
+      handleDbError(error)
+    }
+  }
+
+
+  async findAllColaboradores() {
+    try {
+      return await this.personaRepository.find({
+        relations: {
+          EMPRESA: true,
+          DEPARTAMENTO: true,
+          PUESTO: true
+        },
+        order: {
+          NOMBRE: 'asc',
+        },
+        where: {
+          TIPO_PERSONA: 'INTERNO'
         }
       });
     } catch (error) {

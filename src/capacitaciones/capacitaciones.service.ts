@@ -712,7 +712,7 @@ export class CapacitacionesService {
         .input('COLABORADORES', colaboradoresJson)
         .input('URL_LISTA_ASISTENCIA', urlListaAsistencia)
         .input('OBSERVACIONES', observaciones || null)
-        .input('SOLO_GUARDAR', soloGuardar ? 1 : 0)
+        .input('SOLO_GUARDAR', soloGuardar)
         .execute('SP_FINALIZAR_SESION_CON_ASISTENCIAS');
 
       // 4. Retornar resultado

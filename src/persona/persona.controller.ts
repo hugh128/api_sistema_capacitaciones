@@ -17,6 +17,11 @@ export class PersonaController {
     return this.personaService.findAll();
   }
 
+  @Get('colaboradores')
+  findAllColaboradores() {
+    return this.personaService.findAllColaboradores();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.personaService.findOne(+id);
