@@ -446,6 +446,41 @@ export class CapacitacionesController {
     );
   }
 
+  /**
+   * PUT /capacitaciones/:idSesion/finalizar-con-asistencias
+   * Finaliza una sesión registrando todas las asistencias, exámenes y diplomas
+   * @param soloGuardar - Si es true, solo guarda sin finalizar (para edición)
+   */
+  @Put(':idSesion/finalizar-con-asistencias')
+  @UseInterceptors(AnyFilesInterceptor())
+  async finalizarSesionConAsistencias(
+    @Param('idSesion', ParseIntPipe) idSesion: number,
+    @Body() body: { 
+      idCapacitador: number;
+      colaboradores: string;
+      observaciones?: string;
+      soloGuardar?: boolean;  // true = guardar sin finalizar, false/undefined = finalizar
+    },
+    @UploadedFiles() files: Express.Multer.File[]
+  ) {
+    // Validar que el archivo de lista de asistencia sea PDF
+    const listaAsistenciaFile = files.find(f => f.fieldname === 'listaAsistencia');
+    if (listaAsistenciaFile && listaAsistenciaFile.mimetype !== 'application/pdf') {
+      throw new BadRequestException('La lista de asistencia debe ser un PDF');
+    }
+
+    const colaboradoresData: ColaboradorAsistenciaDto[] = JSON.parse(body.colaboradores);
+    
+    return await this.capacitacionesService.finalizarSesionConAsistencias(
+      idSesion,
+      body.idCapacitador,
+      colaboradoresData,
+      files,
+      body.observaciones,
+      body.soloGuardar || false
+    );
+  }
+
   // ========================================
   // RRHH
   // ========================================

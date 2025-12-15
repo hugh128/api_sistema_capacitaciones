@@ -7,6 +7,7 @@ export class ColaboradorAsistenciaDto {
   idColaborador: number;
 
   @IsBoolean()
+  @IsOptional()
   asistio: boolean;
 
   @IsOptional()

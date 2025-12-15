@@ -639,6 +639,99 @@ export class CapacitacionesService {
   }
 
   /**
+   * Finaliza una sesión con todas las asistencias, exámenes y diplomas
+   */
+  async finalizarSesionConAsistencias(
+    idSesion: number,
+    idCapacitador: number,
+    colaboradores: ColaboradorAsistenciaDto[],
+    files: Express.Multer.File[] = [],
+    observaciones?: string,
+    soloGuardar: boolean = false
+  ) {
+    try {
+      // 1. Subir lista de asistencia general (si existe)
+      let urlListaAsistencia: string | null = null;
+      const listaAsistenciaFile = files.find(f => f.fieldname === 'listaAsistencia');
+      
+      if (listaAsistenciaFile) {
+        urlListaAsistencia = await this.storageService.uploadFile(
+          listaAsistenciaFile,
+          'capacitaciones/listas-asistencia',
+        );
+      }
+
+      // 2. Subir exámenes y diplomas individuales
+      const colaboradoresConUrls = await Promise.all(
+        colaboradores.map(async (colab) => {
+          let urlExamen: string | undefined;
+          let urlDiploma: string | undefined;
+
+          if (colab.asistio) {
+            // Subir examen si existe
+            const examenFile = files.find(
+              f => f.fieldname === `examen_${colab.idColaborador}`
+            );
+            if (examenFile) {
+              urlExamen = await this.storageService.uploadFile(
+                examenFile,
+                'capacitaciones/examenes',
+              );
+            }
+
+            // Subir diploma si existe
+            const diplomaFile = files.find(
+              f => f.fieldname === `diploma_${colab.idColaborador}`
+            );
+            if (diplomaFile) {
+              urlDiploma = await this.storageService.uploadFile(
+                diplomaFile,
+                'capacitaciones/diplomas',
+              );
+            }
+          }
+
+          return {
+            idColaborador: colab.idColaborador,
+            asistio: colab.asistio,
+            notaObtenida: colab.notaObtenida,
+            urlExamen,
+            urlDiploma,
+            observaciones: colab.observaciones,
+          };
+        })
+      );
+
+      // 3. Ejecutar el procedimiento almacenado
+      const pool = (this.dataSource.driver as any).master;
+      const colaboradoresJson = JSON.stringify(colaboradoresConUrls);
+      
+      const result = await pool.request()
+        .input('ID_SESION', idSesion)
+        .input('ID_CAPACITADOR', idCapacitador)
+        .input('COLABORADORES', colaboradoresJson)
+        .input('URL_LISTA_ASISTENCIA', urlListaAsistencia)
+        .input('OBSERVACIONES', observaciones || null)
+        .input('SOLO_GUARDAR', soloGuardar ? 1 : 0)
+        .execute('SP_FINALIZAR_SESION_CON_ASISTENCIAS');
+
+      // 4. Retornar resultado
+      return {
+        success: true,
+        ...result.recordset[0],
+        archivosSubidos: {
+          listaAsistencia: urlListaAsistencia ? 1 : 0,
+          examenes: colaboradoresConUrls.filter(c => c.urlExamen).length,
+          diplomas: colaboradoresConUrls.filter(c => c.urlDiploma).length,
+        },
+      };
+    } catch (error) {
+      this.logger.error('Error al finalizar sesión con asistencias', error);
+      this.databaseErrorService.handle(error);
+    }
+  }
+
+  /**
    * Registro de asistencia de una sesion aprobada
   */
   async aprobarAsistencias(
