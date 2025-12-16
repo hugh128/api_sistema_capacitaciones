@@ -5,7 +5,6 @@ import {
   Put,
   Body,
   Param,
-  Query,
   UseInterceptors,
   UploadedFile,
   ParseIntPipe,
@@ -18,7 +17,6 @@ import { CapacitacionesService } from './capacitaciones.service';
 import { AplicarPlanDto } from './dto/aplicar-plan.dto';
 import { AplicarProgramaDto } from './dto/aplicar-programa.dto';
 import { RegistrarAsistenciaDto } from './dto/registrar-asistencia.dto';
-import { ActualizarEstadoCapacitacionDto } from './dto/actualizar-estado.dto';
 import { ActualizarEstadoSesionDto } from './dto/actualizar-estado-sesion.dto';
 import { RegistrarListadoAsistenciaDto } from './dto/RegistrarListadoAsistenciaDto';
 import { ColaboradorAsistenciaDto } from './dto/ColaboradorAsistenciaDto';
@@ -68,15 +66,6 @@ export class CapacitacionesController {
   @Get('todas')
   async obtenerCapacitaciones() {
     return this.capacitacionesService.obtenerCapacitaciones();
-  }
-
-  /**
-   * GET /capacitaciones/pendientes
-   * Obtiene todas las capacitaciones pendientes de asignación (para RRHH)
-   */
-  @Get('pendientes')
-  async obtenerCapacitacionesPendientes() {
-    return this.capacitacionesService.obtenerCapacitacionesPendientes();
   }
 
   /**
@@ -138,23 +127,6 @@ export class CapacitacionesController {
   }
 
   /**
-   * PUT /capacitaciones/:id/estado
-   * Actualiza el estado de una capacitación
-   */
-  @Put(':id/estado')
-  async actualizarEstado(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: { nuevoEstado: string; observaciones?: string },
-  ) {
-    const dto: ActualizarEstadoCapacitacionDto = {
-      idCapacitacion: id,
-      nuevoEstado: body.nuevoEstado,
-      observaciones: body.observaciones,
-    };
-    return this.capacitacionesService.actualizarEstado(dto);
-  }
-
-  /**
    * PUT /capacitaciones/:id/sesion/estado
    * Actualiza el estado de una sesion a EN_PROCESO
    */
@@ -174,22 +146,6 @@ export class CapacitacionesController {
   // ========================================
   // COLABORADORES
   // ========================================
-
-  /**
-   * GET /capacitaciones/:id/colaboradores
-   * Obtiene la lista de colaboradores de una capacitación
-   * Query params: filtro (TODOS, PENDIENTES, ASIGNADOS, ASISTIERON, NO_ASISTIERON)
-   */
-  @Get(':id/colaboradores')
-  async obtenerColaboradoresCapacitacion(
-    @Param('id', ParseIntPipe) id: number,
-    @Query('filtro') filtro: string = 'TODOS',
-  ) {
-    return this.capacitacionesService.obtenerColaboradoresCapacitacion(
-      id,
-      filtro,
-    );
-  }
 
   /**
    * GET /capacitaciones/:id/colaboradores-sesion
@@ -365,41 +321,6 @@ export class CapacitacionesController {
     };
 
     return this.capacitacionesService.registrarAsistencia(dto, urlExamen);
-  }
-
-  /**
-   * PUT /capacitaciones/:id/finalizar
-   * Finaliza una capacitación y sube lista de asistencia
-   */
-  @Put(':id/finalizar')
-  @UseInterceptors(FileInterceptor('listaAsistencia'))
-  async finalizarCapacitacion(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: { observaciones?: string },
-    @UploadedFile() listaAsistencia?: Express.Multer.File,
-  ) {
-    let urlListaAsistencia: string | undefined;
-
-    if (listaAsistencia) {
-      if (listaAsistencia.mimetype !== 'application/pdf') {
-        throw new BadRequestException(
-          'La lista de asistencia debe ser un PDF',
-        );
-      }
-      const result = await this.capacitacionesService.subirListaAsistencia(
-        id,
-        listaAsistencia,
-      );
-      urlListaAsistencia = result.url;
-    }
-
-    const dto: ActualizarEstadoCapacitacionDto = {
-      idCapacitacion: id,
-      nuevoEstado: 'FINALIZADA_CAPACITADOR',
-      observaciones: body.observaciones,
-    };
-
-    return this.capacitacionesService.actualizarEstado(dto, urlListaAsistencia);
   }
 
   /**

@@ -3,7 +3,6 @@ import { StorageService } from '../storage/storage.service';
 import { AplicarPlanDto } from './dto/aplicar-plan.dto';
 import { AplicarProgramaDto } from './dto/aplicar-programa.dto';
 import { RegistrarAsistenciaDto } from './dto/registrar-asistencia.dto';
-import { ActualizarEstadoCapacitacionDto } from './dto/actualizar-estado.dto';
 import { DataSource, EntityManager } from 'typeorm';
 import { DatabaseErrorService } from 'src/common/database-error.service';
 import { ActualizarEstadoSesionDto } from './dto/actualizar-estado-sesion.dto';
@@ -85,28 +84,6 @@ export class CapacitacionesService {
       const result = await this.entityManager.query(
         `EXEC SP_OBTENER_VISTA_COMPLETA_CAPACITACIONES_RRHH`,
       );
-
-      return result;
-    } catch (error) {
-      this.logger.error('Error al obtener capacitaciones pendientes', error);
-      this.databaseErrorService.handle(error);
-    }
-  }
-
-  /**
-   * Obtener capacitaciones pendientes para RRHH
-   */
-  async obtenerCapacitacionesPendientes() {
-    try {
-      const result = await this.entityManager.query(
-        `EXEC SP_OBTENER_CAPACITACIONES_PENDIENTES`,
-      );
-
-/*       return {
-        success: true,
-        data: result,
-        total: result.length,
-      }; */
 
       return result;
     } catch (error) {
@@ -274,34 +251,6 @@ export class CapacitacionesService {
   }
 
   /**
-   * Obtener colaboradores de una capacitación
-   */
-  async obtenerColaboradoresCapacitacion(
-    idCapacitacion: number,
-    filtro: string = 'TODOS',
-  ) {
-    try {
-      const result = await this.entityManager.query(
-        `EXEC SP_OBTENER_COLABORADORES_CAPACITACION
-          @ID_CAPACITACION = @0,
-          @FILTRO = @1`,
-        [idCapacitacion, filtro],
-      );
-
-/*       return {
-        success: true,
-        data: result,
-        total: result.length,
-      }; */
-
-      return result;
-    } catch (error) {
-      this.logger.error('Error al obtener colaboradores de capacitación', error);
-      this.databaseErrorService.handle(error);
-    }
-  }
-
-  /**
    * Obtener colaboradores de una capacitación sin sesion
    */
   async obtenerColaboradoresSinSesion(
@@ -408,40 +357,6 @@ export class CapacitacionesService {
       this.databaseErrorService.handle(error);
     }
   }
-
-  /**
-   * Actualizar estado de capacitación
-   */
-  async actualizarEstado(
-    dto: ActualizarEstadoCapacitacionDto,
-    urlListaAsistencia?: string,
-  ) {
-    try {
-      const result = await this.entityManager.query(
-        `EXEC SP_ACTUALIZAR_ESTADO_CAPACITACION 
-         @ID_CAPACITACION = @0, 
-         @NUEVO_ESTADO = @1, 
-         @URL_LISTA_ASISTENCIA = @2, 
-         @OBSERVACIONES = @3`,
-        [
-          dto.idCapacitacion,
-          dto.nuevoEstado,
-          urlListaAsistencia || null,
-          dto.observaciones || null,
-        ],
-      );
-
-      return {
-        success: true,
-        message: result[0]?.Mensaje || 'Estado actualizado exitosamente',
-        data: result[0],
-      };
-    } catch (error) {
-      this.logger.error('Error al actualizar estado', error);
-      this.databaseErrorService.handle(error);
-    }
-  }
-
 
   /**
    * Actualizar estado de capacitación
