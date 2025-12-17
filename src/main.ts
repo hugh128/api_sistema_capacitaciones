@@ -14,8 +14,9 @@ async function bootstrap() {
       `https://sistema-capacitaciones-rrhh-7lu75y4nd.vercel.app`, // producción
       /\.vercel\.app$/
     ],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     exposedHeaders: ['Content-Disposition', 'Content-Length'],
   });
 
