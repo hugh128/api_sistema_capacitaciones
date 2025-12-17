@@ -7,12 +7,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const FRONT_PORT = process.env.FRONT_PORT || '3000';
-  const FRONTEND_URL = process.env.FRONTEND_URL;
 
   app.enableCors({
     origin: [
       `http://localhost:${FRONT_PORT}`, // desarrollo
-      `${FRONTEND_URL}`, // producción
+      `https://sistema-capacitaciones-rrhh-7lu75y4nd.vercel.app`, // producción
       /\.vercel\.app$/
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
