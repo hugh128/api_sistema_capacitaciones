@@ -22,6 +22,7 @@ import { RegistrarListadoAsistenciaDto } from './dto/RegistrarListadoAsistenciaD
 import { ColaboradorAsistenciaDto } from './dto/ColaboradorAsistenciaDto';
 import { CrearSesionAsignarColaboradoresDto } from './dto/crear-sesion-y-asignar-colaboradores.dto';
 import { EditarSesionDto } from './dto/editar-sesion.dto';
+import { AplicarProgramaSelectivoDto } from './dto/aplicar-programa-selectivo.dto';
 
 @Controller('capacitaciones')
 export class CapacitacionesController {
@@ -45,6 +46,15 @@ export class CapacitacionesController {
   // ========================================
   // PROGRAMAS DE CAPACITACIÓN
   // ========================================
+
+  /**
+   * POST /capacitaciones/programas/aplicar
+   * Aplica un programa de capacitación selectivo
+   */
+  @Post('programas/aplicar-selectivo')
+  async aplicarProgramaSelectivo(@Body() dto: AplicarProgramaSelectivoDto) {
+    return this.capacitacionesService.aplicarProgramaSelectivo(dto);
+  }
 
   /**
    * POST /capacitaciones/programas/aplicar
@@ -531,6 +541,19 @@ export class CapacitacionesController {
   ) {
     return this.capacitacionesService.obtenerColaboradoresDisponiblesPlan(
       idPlan,
+    );
+  }
+
+  /**
+   * GET /capacitaciones/programas/:idPrograma/colaboradores-disponibles
+   * Obtiene los colaboradores que cumplen con los requisitos de un programa
+   */
+  @Get('programas/:idPrograma/colaboradores-disponibles')
+  async obtenerColaboradoresDisponiblesPrograma(
+    @Param('idPrograma', ParseIntPipe) idPrograma: number,
+  ) {
+    return this.capacitacionesService.obtenerColaboradoresDisponiblesPrograma(
+      idPrograma,
     );
   }
 

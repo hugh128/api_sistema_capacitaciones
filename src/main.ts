@@ -7,11 +7,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const FRONT_PORT = process.env.FRONT_PORT || '3000';
+  const FRONTEND_URL = process.env.FRONTEND_URL;
 
   app.enableCors({
     origin: [
       `http://localhost:${FRONT_PORT}`, // desarrollo
-      `https://sistema-capacitaciones-rrhh-7lu75y4nd.vercel.app`, // producción
+      `${FRONTEND_URL}`, // producción
       /\.vercel\.app$/
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
@@ -33,7 +34,7 @@ async function bootstrap() {
   const reflector = app.get(Reflector);
   app.useGlobalGuards(new JwtAuthGuard(reflector));
   const port = process.env.PORT || 3001;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
   console.log(`Servidor corriendo en el puerto ${port}`);
 }

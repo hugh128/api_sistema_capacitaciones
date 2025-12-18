@@ -10,6 +10,7 @@ import { RegistrarListadoAsistenciaDto } from './dto/RegistrarListadoAsistenciaD
 import { ColaboradorAsistenciaDto } from './dto/ColaboradorAsistenciaDto';
 import { CrearSesionAsignarColaboradoresDto } from './dto/crear-sesion-y-asignar-colaboradores.dto';
 import { EditarSesionDto } from './dto/editar-sesion.dto';
+import { AplicarProgramaSelectivoDto } from './dto/aplicar-programa-selectivo.dto';
 
 @Injectable()
 export class CapacitacionesService {
@@ -72,6 +73,38 @@ export class CapacitacionesService {
       };
     } catch (error) {
       this.logger.error('Error al aplicar programa', error);
+      this.databaseErrorService.handle(error);
+    }
+  }
+
+  /**
+   * Aplicar un programa de capacitación selectivo
+   */
+  async aplicarProgramaSelectivo(dto: AplicarProgramaSelectivoDto) {
+    const { idPrograma, asignaciones, usuario } = dto;
+
+    const asignacionesJson = JSON.stringify(asignaciones);
+
+    try {
+      const result = await this.dataSource.query(
+        `EXEC SP_APLICAR_PROGRAMA_COLABORADORES_SELECTIVO
+         @ID_PROGRAMA = @0,
+         @ASIGNACIONES = @1, 
+         @USUARIO = @2`,
+        [
+          idPrograma,
+          asignacionesJson,
+          usuario
+        ]
+      );
+
+      return {
+        success: true,
+        message: result[0]?.Mensaje || 'Capacitacion(es) en programa aplicado(s) exitosamente',
+        data: result[0],
+      };
+    } catch (error) {
+      this.logger.error('Error al aplicar capacitaciones en programa', error);
       this.databaseErrorService.handle(error);
     }
   }
@@ -1118,6 +1151,70 @@ export class CapacitacionesService {
         'Error al obtener colaboradores disponibles para plan',
         error,
       );
+      this.databaseErrorService.handle(error);
+    }
+  }
+
+  /**
+   * Obtener colaboradores disponibles para un programa
+   */
+  async obtenerColaboradoresDisponiblesPrograma(idPrograma: number) {
+    try {
+      const result = await this.entityManager.query(
+        'EXEC SP_OBTENER_COLABORADORES_ELEGIBLES_PROGRAMA @ID_PROGRAMA = @0',
+        [idPrograma]
+      );
+
+      const colaboradoresMap = result.reduce((acc, row) => {
+        const id = row.ID_COLABORADOR;
+
+        if (!acc[id]) {
+          acc[id] = {
+            idColaborador: row.ID_COLABORADOR,
+            nombre: row.NOMBRE_COLABORADOR,
+            departamento: row.DEPARTAMENTO,
+            puesto: row.PUESTO,
+            fechaIngreso: row.FECHA_INGRESO,
+            yaTieneProgramaActivo: row.YA_TIENE_PROGRAMA_ACTIVO,
+            allCapacitaciones: []
+          };
+        }
+
+        acc[id].allCapacitaciones.push({
+          idDetalle: row.ID_DETALLE,
+          nombre: row.NOMBRE_CAPACITACION,
+          categoria: row.CATEGORIA_CAPACITACION,
+          tipo: row.TIPO_CAPACITACION,
+          mes: row.MES_PROGRAMADO,
+          yaTieneCapacitacion: row.YA_TIENE_CAPACITACION,
+          puedeAsignarse: row.PUEDE_ASIGNARSE
+        });
+
+        return acc;
+      }, {});
+
+      const listaBase = Object.values(colaboradoresMap);
+
+      return {
+        disponibles: listaBase
+          .filter((c: any) => c.allCapacitaciones.some(cap => cap.puedeAsignarse))
+          .map((c: any) => ({
+            ...c,
+            capacitaciones: c.allCapacitaciones.filter(cap => cap.puedeAsignarse),
+            allCapacitaciones: undefined
+          })),
+
+        aplicados: listaBase
+          .filter((c: any) => c.allCapacitaciones.every(cap => !cap.puedeAsignarse))
+          .map((c: any) => ({
+            ...c,
+            capacitaciones: c.allCapacitaciones,
+            allCapacitaciones: undefined
+          }))
+      };
+
+    } catch (error) {
+      this.logger.error('Error al obtener colaboradores disponibles para programa', error);
       this.databaseErrorService.handle(error);
     }
   }
