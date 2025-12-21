@@ -38,7 +38,7 @@ export class PersonaController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.personaService.remove(+id);
+  remove(@Param('id') id: string, @Body() updatePersonaDto: UpdatePersonaDto) {
+    return this.personaService.remove(+id, updatePersonaDto);
   }
 }

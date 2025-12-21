@@ -56,4 +56,7 @@ export class CreatePersonaDto {
 
     @IsOptional()
     ESTADO?: boolean;
+
+    @IsInt()
+    USUARIO_ACCION_ID: number;
 }

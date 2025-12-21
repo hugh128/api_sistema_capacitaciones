@@ -19,7 +19,7 @@ export class PersonaService {
       const { 
           NOMBRE, APELLIDO, CORREO, TELEFONO, DPI, FECHA_NACIMIENTO, 
           TIPO_PERSONA, FECHA_INGRESO, EMPRESA_ID, DEPARTAMENTO_ID, 
-          PUESTO_ID, ESTADO = true 
+          PUESTO_ID, ESTADO = true, USUARIO_ACCION_ID
       } = createPersonaDto;
 
       const result = await this.entityManager.query(
@@ -35,7 +35,8 @@ export class PersonaService {
             @EMPRESA_ID = @8,
             @DEPARTAMENTO_ID = @9,
             @PUESTO_ID = @10,
-            @ESTADO = @11`,
+            @ESTADO = @11,
+            @USUARIO_ACCION_ID = @12`,
           [
             NOMBRE,
             APELLIDO,
@@ -48,7 +49,8 @@ export class PersonaService {
             EMPRESA_ID,
             DEPARTAMENTO_ID,
             PUESTO_ID,
-            ESTADO
+            ESTADO,
+            USUARIO_ACCION_ID
           ]
       );
 
@@ -135,7 +137,7 @@ export class PersonaService {
     const { 
       NOMBRE, APELLIDO, CORREO, TELEFONO, DPI, FECHA_NACIMIENTO, 
       TIPO_PERSONA, FECHA_INGRESO, EMPRESA_ID, DEPARTAMENTO_ID, 
-      PUESTO_ID, ESTADO 
+      PUESTO_ID, ESTADO, USUARIO_ACCION_ID
     } = updatePersonaDto;
 
     const result = await this.entityManager.query(
@@ -152,7 +154,8 @@ export class PersonaService {
         @EMPRESA_ID = @9,
         @DEPARTAMENTO_ID = @10,
         @PUESTO_ID = @11,
-        @ESTADO = @12`,
+        @ESTADO = @12,
+        @USUARIO_ACCION_ID = @13`,
       [
         id,
         NOMBRE,
@@ -166,7 +169,8 @@ export class PersonaService {
         EMPRESA_ID,
         DEPARTAMENTO_ID,
         PUESTO_ID,
-        ESTADO
+        ESTADO,
+        USUARIO_ACCION_ID
       ]
     );
 
@@ -193,12 +197,18 @@ export class PersonaService {
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, updatePersonaDto: UpdatePersonaDto) {
+    const { USUARIO_ACCION_ID } = updatePersonaDto;
+
     try {
-      
     const result = await this.entityManager.query(
-        `EXEC sp_PERSONA_BAJA @ID_PERSONA = @0`,
-        [id]
+      `EXEC sp_PERSONA_BAJA
+        @ID_PERSONA = @0,
+        @USUARIO_ACCION_ID = @1`,
+      [
+        id,
+        USUARIO_ACCION_ID
+      ]
     );
 
     const spResult = result[0];
