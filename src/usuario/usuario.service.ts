@@ -88,7 +88,9 @@ export class UsuarioService {
           },
         },
         order: {
-          USERNAME: 'ASC'
+          PERSONA: {
+            NOMBRE: 'ASC'
+          }
         }
       });
 
