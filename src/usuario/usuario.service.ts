@@ -85,7 +85,10 @@ export class UsuarioService {
                 PERMISO: true,
               }
             }
-          }
+          },
+        },
+        order: {
+          USERNAME: 'ASC'
         }
       });
 
