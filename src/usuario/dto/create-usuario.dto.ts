@@ -20,6 +20,9 @@ export class CreateUsuarioDto {
 
     @IsOptional()
     ESTADO?: boolean;
+
+    @IsInt()
+    USUARIO_ACCION_ID: number;
     
     @IsDateString()
     @IsOptional()

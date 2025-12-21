@@ -80,7 +80,6 @@ export class PersonaService {
     }
   }
 
-
   async findAllColaboradores() {
     try {
       return await this.personaRepository.find({
@@ -98,6 +97,19 @@ export class PersonaService {
       });
     } catch (error) {
       handleDbError(error)
+    }
+  }
+
+  async findSinUsuarioYActivas() {
+    try {
+      return await this.personaRepository
+        .createQueryBuilder('persona')
+        .leftJoin('persona.USUARIO', 'usuario')
+        .where('usuario.ID_USUARIO IS NULL')
+        .andWhere('persona.ESTADO = :estado', { estado: 1 })
+        .getMany();
+    } catch (error) {
+      handleDbError(error);
     }
   }
 

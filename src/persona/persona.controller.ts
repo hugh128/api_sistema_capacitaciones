@@ -22,6 +22,11 @@ export class PersonaController {
     return this.personaService.findAllColaboradores();
   }
 
+  @Get('sin-usuario')
+  findSinUsuario() {
+    return this.personaService.findSinUsuarioYActivas();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.personaService.findOne(+id);

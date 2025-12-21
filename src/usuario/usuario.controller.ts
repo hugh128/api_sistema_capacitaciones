@@ -35,8 +35,8 @@ export class UsuarioController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usuarioService.remove(+id);
+  remove(@Param('id') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto) {
+    return this.usuarioService.remove(+id, updateUsuarioDto);
   }
 
   @Get('capacitador/capacitadores-disponibles')

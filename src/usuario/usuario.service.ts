@@ -24,7 +24,7 @@ export class UsuarioService {
 
 
   async create(createUsuarioDto: CreateUsuarioDto) {
-    const { PERSONA_ID, USERNAME, PASSWORD, ESTADO, ID_ROLES } = createUsuarioDto;
+    const { PERSONA_ID, USERNAME, PASSWORD, ESTADO, USUARIO_ACCION_ID, ID_ROLES } = createUsuarioDto;
     
     const hashedPassword = await this.hashingService.hash(PASSWORD)
 
@@ -35,12 +35,14 @@ export class UsuarioService {
             @PERSONA_ID = @0,
             @USERNAME = @1,
             @PASSWORD = @2,
-            @ESTADO = @3`,
+            @ESTADO = @3,
+            @USUARIO_ACCION_ID = @4`,
           [
             PERSONA_ID,
             USERNAME,
             hashedPassword,
-            ESTADO
+            ESTADO,
+            USUARIO_ACCION_ID
           ]
         );
 
@@ -173,7 +175,7 @@ export class UsuarioService {
 
   async updateData(id: number, updateUsuarioDto: UpdateUsuarioDto) {
 
-    const { USERNAME, ESTADO, ID_ROLES } = updateUsuarioDto;
+    const { USERNAME, ESTADO, USUARIO_ACCION_ID, ID_ROLES } = updateUsuarioDto;
 
     return this.entityManager.transaction(async manager => {
       try {
@@ -181,11 +183,13 @@ export class UsuarioService {
           `EXEC sp_USUARIO_ACTUALIZAR_DATOS
             @ID_USUARIO = @0,
             @USERNAME = @1,
-            @ESTADO = @2`,
+            @ESTADO = @2,
+            @USUARIO_ACCION_ID = @3`,
           [
             id,
             USERNAME,
-            ESTADO
+            ESTADO,
+            USUARIO_ACCION_ID
           ]
         );
         
@@ -222,7 +226,7 @@ export class UsuarioService {
   }
 
   async updatePassword(id: number, updatePasswordDto: UpdatePasswordDto) {
-    const { PASSWORD } = updatePasswordDto;
+    const { PASSWORD, USUARIO_ACCION_ID } = updatePasswordDto;
     
     const hashedPassword = await this.hashingService.hash(PASSWORD)
 
@@ -230,8 +234,9 @@ export class UsuarioService {
       const result = await this.entityManager.query(
         `EXEC sp_USUARIO_ACTUALIZAR_PASSWORD
           @ID_USUARIO = @0,
-          @PASSWORD = @1`,
-        [id, hashedPassword]
+          @PASSWORD = @1,
+          @USUARIO_ACCION_ID = @2`,
+        [id, hashedPassword, USUARIO_ACCION_ID]
       );
 
       const spResult = result[0];
@@ -255,12 +260,15 @@ export class UsuarioService {
     }
   }
 
-  async remove(id: number) {
-    try {
+  async remove(id: number, updateUsuarioDto: UpdateUsuarioDto) {
+    const { USUARIO_ACCION_ID } = updateUsuarioDto;
 
+    try {
     const result = await this.entityManager.query(
-      `EXEC sp_USUARIO_BAJA @ID_USUARIO = @0`,
-      [id]
+      `EXEC sp_USUARIO_BAJA
+       @ID_USUARIO = @0,
+       @USUARIO_ACCION_ID = @1`,
+      [id, USUARIO_ACCION_ID]
     );
 
     const spResult = result[0];
