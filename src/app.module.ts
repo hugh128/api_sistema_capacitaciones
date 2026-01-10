@@ -51,8 +51,17 @@ import { PlantillasModuleModule } from './plantillas-module/plantillas-module.mo
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: false,
         extra: {
-          encrypt: true,
-          trustServerCertificate: true,
+          options: {
+            encrypt: true,
+            trustServerCertificate: true,
+            connectTimeout: 30000, // Tiempo de espera para conectar (30s)
+            requestTimeout: 60000, // Tiempo de espera para ejecutar query (60s)
+          },
+          pool: {
+            max: 10,
+            min: 1,
+            idleTimeoutMillis: 30000,
+          },
         },
       }),
     }),
