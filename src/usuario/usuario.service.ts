@@ -318,6 +318,7 @@ export class UsuarioService {
           'persona.APELLIDO AS "APELLIDO"',
           'persona.CORREO AS "CORREO"',
         ])
+        .orderBy('persona.NOMBRE', 'ASC')
         .getRawMany();
 
       return capacitadores;
