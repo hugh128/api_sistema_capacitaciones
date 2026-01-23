@@ -89,4 +89,8 @@ export class EditarSesionDto {
   @IsOptional()
   @IsString()
   usuario: string;
+
+  @IsOptional()
+  @IsString()
+  categoria?: string;
 }

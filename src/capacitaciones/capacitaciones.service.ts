@@ -191,7 +191,9 @@ export class CapacitacionesService {
           @NOTA_MINIMA = @12,
           @APLICA_DIPLOMA = @13,
           @OBSERVACIONES = @14,
-          @USUARIO = @15`,
+          @USUARIO = @15,
+          @CATEGORIA = @16
+          `,
         [
           dto.idCapacitacion,
           dto.idsColaboradores.join(','),
@@ -209,6 +211,7 @@ export class CapacitacionesService {
           dto.aplicaDiploma,
           dto.observaciones || null,
           dto.usuario || null,
+          dto.categoria || null,
         ],
       );
 
@@ -246,7 +249,9 @@ export class CapacitacionesService {
           @OBSERVACIONES = @13,
           @IDS_COLABORADORES_AGREGAR = @14,
           @IDS_COLABORADORES_QUITAR = @15,
-          @USUARIO = @16`,
+          @USUARIO = @16,
+          @CATEGORIA = @17
+          `,
         [
           dto.idSesion,
           dto.capacitadorId || null,
@@ -269,6 +274,7 @@ export class CapacitacionesService {
             ? dto.idsColaboradoresQuitar.join(',') 
             : null,
           dto.usuario || 'SYSTEM',
+          dto.categoria || null,
         ],
       );
 

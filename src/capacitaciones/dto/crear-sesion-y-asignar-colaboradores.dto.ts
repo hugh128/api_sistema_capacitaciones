@@ -86,4 +86,8 @@ export class CrearSesionAsignarColaboradoresDto {
   @IsOptional()
   @IsString()
   usuario: string;
+
+  @IsOptional()
+  @IsString()
+  categoria?: string;
 }
