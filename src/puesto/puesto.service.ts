@@ -17,19 +17,21 @@ export class PuestoService {
   async create(createPuestoDto: CreatePuestoDto) {
     try {
       
-      const { NOMBRE, DESCRIPCION, ESTADO, DEPARTAMENTO_ID } = createPuestoDto;
+      const { NOMBRE, DESCRIPCION, ESTADO, DEPARTAMENTO_ID, USUARIO_ACCION_ID } = createPuestoDto;
 
       const result = await this.entityManager.query(
         `EXEC sp_PUESTO_ALTA 
           @NOMBRE = @0,
           @DESCRIPCION = @1, 
           @ESTADO = @2, 
-          @DEPARTAMENTO_ID = @3`, 
+          @DEPARTAMENTO_ID = @3,
+          @USUARIO_ACCION_ID = @4`, 
         [
           NOMBRE,
           DESCRIPCION,
           ESTADO,
-          DEPARTAMENTO_ID
+          DEPARTAMENTO_ID,
+          USUARIO_ACCION_ID,
         ]
       );
 
@@ -77,7 +79,7 @@ export class PuestoService {
 
   async update(id: number, updatePuestoDto: UpdatePuestoDto) {
     try {
-      const { NOMBRE, DESCRIPCION, ESTADO, DEPARTAMENTO_ID } = updatePuestoDto;
+      const { NOMBRE, DESCRIPCION, ESTADO, DEPARTAMENTO_ID, USUARIO_ACCION_ID } = updatePuestoDto;
 
       const result = await this.entityManager.query(
         `EXEC sp_PUESTO_ACTUALIZAR
@@ -85,13 +87,15 @@ export class PuestoService {
           @NOMBRE = @1, 
           @DESCRIPCION = @2, 
           @ESTADO = @3,
-          @DEPARTAMENTO_ID = @4`, 
+          @DEPARTAMENTO_ID = @4,
+          @USUARIO_ACCION_ID = @5`, 
         [
           id,
           NOMBRE,
           DESCRIPCION,
           ESTADO,
-          DEPARTAMENTO_ID
+          DEPARTAMENTO_ID,
+          USUARIO_ACCION_ID
         ]
       );
 
@@ -118,12 +122,19 @@ export class PuestoService {
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, updatePuestoDto: UpdatePuestoDto) {
+    const { USUARIO_ACCION_ID } = updatePuestoDto
+
     try {
       
       const result = await this.entityManager.query(
-        `EXEC sp_PUESTO_BAJA @ID_PUESTO = @0`,
-        [id]
+        `EXEC sp_PUESTO_BAJA
+          @ID_PUESTO = @0,
+          @USUARIO_ACCION_ID = @1`,
+        [
+          id,
+          USUARIO_ACCION_ID
+        ]
       );
 
       const spResult = result[0];

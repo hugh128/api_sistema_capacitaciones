@@ -28,7 +28,7 @@ export class DepartamentoController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.departamentoService.remove(+id);
+  remove(@Param('id') id: string, @Body() updateDepartamentoDto: UpdateDepartamentoDto) {
+    return this.departamentoService.remove(+id, updateDepartamentoDto);
   }
 }

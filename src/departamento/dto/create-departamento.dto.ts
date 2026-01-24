@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, MaxLength, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, MaxLength, IsOptional, IsInt } from 'class-validator';
 
 export class CreateDepartamentoDto {
 	@IsString()
@@ -21,4 +21,7 @@ export class CreateDepartamentoDto {
 
     @IsOptional()
     ESTADO?: boolean;
+
+    @IsInt()
+    USUARIO_ACCION_ID: number;
 }

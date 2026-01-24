@@ -28,7 +28,7 @@ export class PuestoController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.puestoService.remove(+id);
+  remove(@Param('id') id: string, @Body() updatePuestoDto: UpdatePuestoDto) {
+    return this.puestoService.remove(+id, updatePuestoDto);
   }
 }

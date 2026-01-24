@@ -16,7 +16,7 @@ export class DepartamentoService {
 
   async create(createDepartamentoDto: CreateDepartamentoDto) {
     try {
-	  const { CODIGO, NOMBRE, DESCRIPCION, ID_ENCARGADO, ESTADO } = createDepartamentoDto;
+	  const { CODIGO, NOMBRE, DESCRIPCION, ID_ENCARGADO, ESTADO, USUARIO_ACCION_ID } = createDepartamentoDto;
 
       const result = await this.entityManager.query(
         `EXEC sp_DEPARTAMENTO_ALTA 
@@ -24,13 +24,15 @@ export class DepartamentoService {
           @NOMBRE = @1, 
           @DESCRIPCION = @2,
           @ID_ENCARGADO = @3,
-          @ESTADO = @4`, 
+          @ESTADO = @4,
+          @USUARIO_ACCION_ID = @5`,
         [
           CODIGO,
           NOMBRE,
           DESCRIPCION,
           ID_ENCARGADO,
-          ESTADO
+          ESTADO,
+          USUARIO_ACCION_ID,
         ]
       );
 
@@ -78,7 +80,7 @@ export class DepartamentoService {
 
   async update(id: number, updateDepartamentoDto: UpdateDepartamentoDto) {
     try {
-	  const { CODIGO, NOMBRE, DESCRIPCION, ID_ENCARGADO, ESTADO } = updateDepartamentoDto;
+	  const { CODIGO, NOMBRE, DESCRIPCION, ID_ENCARGADO, ESTADO, USUARIO_ACCION_ID } = updateDepartamentoDto;
 
       const result = await this.entityManager.query(
         `EXEC sp_DEPARTAMENTO_ACTUALIZAR
@@ -87,14 +89,16 @@ export class DepartamentoService {
             @NOMBRE = @2,
             @DESCRIPCION = @3,
             @ID_ENCARGADO = @4,
-            @ESTADO = @5`,
+            @ESTADO = @5,
+            @USUARIO_ACCION_ID = @6`,
         [
           id,
           CODIGO,
           NOMBRE,
           DESCRIPCION,
           ID_ENCARGADO,
-          ESTADO
+          ESTADO,
+          USUARIO_ACCION_ID
         ]
       );
 
@@ -121,11 +125,18 @@ export class DepartamentoService {
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, updateDepartamentoDto: UpdateDepartamentoDto) {
+    const { USUARIO_ACCION_ID } = updateDepartamentoDto
+
     try {
       const result = await this.entityManager.query(
-        `EXEC sp_DEPARTAMENTO_BAJA @ID_DEPARTAMENTO = @0`,
-        [id]
+        `EXEC sp_DEPARTAMENTO_BAJA
+          @ID_DEPARTAMENTO = @0,
+          @USUARIO_ACCION_ID = @1`,
+        [
+          id,
+          USUARIO_ACCION_ID,
+        ]
       );
 
       const spResult = result[0];
