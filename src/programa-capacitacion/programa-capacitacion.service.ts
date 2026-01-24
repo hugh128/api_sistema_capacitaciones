@@ -75,15 +75,21 @@ export class ProgramaCapacitacionService {
 
       const formatted = programas.map((programa) => ({
         ...programa,
-        PROGRAMA_DETALLES: programa.PROGRAMA_DETALLES.map((detalle) => ({
-          ...detalle,
-          DEPARTAMENTO_RELACIONES: detalle.DEPARTAMENTO_RELACIONES.map(
-            (rel) => rel.DEPARTAMENTO
-          ),
-          PUESTO_RELACIONES: detalle.PUESTO_RELACIONES.map(
-            (rel) => rel.PUESTO
-          ),
-        })),
+        PROGRAMA_DETALLES: programa.PROGRAMA_DETALLES
+          .sort((a, b) => {
+            if (a.CATEGORIA_CAPACITACION < b.CATEGORIA_CAPACITACION) return 1;
+            if (a.CATEGORIA_CAPACITACION > b.CATEGORIA_CAPACITACION) return -1;
+            return 0;
+          })
+          .map((detalle) => ({
+            ...detalle,
+            DEPARTAMENTO_RELACIONES: detalle.DEPARTAMENTO_RELACIONES.map(
+              (rel) => rel.DEPARTAMENTO
+            ),
+            PUESTO_RELACIONES: detalle.PUESTO_RELACIONES.map(
+              (rel) => rel.PUESTO
+            ),
+          })),
       }));
 
       return formatted;

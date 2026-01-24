@@ -95,6 +95,10 @@ export class ProgramaDetalleService {
         },
         where: {
           PROGRAMA_ID: id
+        },
+        order: {
+          CATEGORIA_CAPACITACION: 'DESC',
+          ID_DETALLE: 'ASC'
         }
       })
 
