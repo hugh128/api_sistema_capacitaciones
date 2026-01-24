@@ -22,6 +22,11 @@ export class ProgramaCapacitacionController {
     return this.programaCapacitacionService.findOne(+id);
   }
 
+  @Get(':id/detalle-colaboradores')
+  obtenerDetalleProgramaConColaboradores(@Param('id') id: string) {
+    return this.programaCapacitacionService.obtenerDetalleProgramaConColaboradores(+id);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProgramaCapacitacionDto: UpdateProgramaCapacitacionDto) {
     return this.programaCapacitacionService.update(+id, updateProgramaCapacitacionDto);

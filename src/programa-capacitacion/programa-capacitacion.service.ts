@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProgramaCapacitacionDto } from './dto/create-programa-capacitacion.dto';
 import { UpdateProgramaCapacitacionDto } from './dto/update-programa-capacitacion.dto';
-import { EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { ProgramaCapacitacion } from './entities/programa-capacitacion.entity';
 import { DatabaseErrorService } from 'src/common/database-error.service';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,6 +13,7 @@ export class ProgramaCapacitacionService {
     private programaCapacitacionRepository: Repository<ProgramaCapacitacion>,
     private readonly entityManager: EntityManager,
     private readonly databaseErrorService: DatabaseErrorService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(createProgramaCapacitacionDto: CreateProgramaCapacitacionDto) {
@@ -121,6 +122,75 @@ export class ProgramaCapacitacionService {
       };
 
       return formattedProgram;
+    } catch (error) {
+      this.databaseErrorService.handle(error);
+    }
+  }
+
+  async obtenerDetalleProgramaConColaboradores(idPrograma: number) {
+    try {
+      const pool = (this.dataSource.driver as any).master;
+      
+      const result = await pool.request()
+        .input('ID_PROGRAMA', idPrograma)
+        .execute('SP_OBTENER_PROGRAMA_DETALLADO');
+      
+      const detallePrograma = result.recordsets[0]?.[0] || null;
+      const capacitacionesPrograma = result.recordsets[1] || [];
+      const colaboradoresRaw = result.recordsets[2] || [];
+      
+      const colaboradoresMap = new Map();
+      
+      colaboradoresRaw.forEach(row => {
+        const colaboradorId = row.ID_COLABORADOR;
+        
+        if (!colaboradoresMap.has(colaboradorId)) {
+          colaboradoresMap.set(colaboradorId, {
+            ID_COLABORADOR: row.ID_COLABORADOR,
+            NOMBRE: row.NOMBRE,
+            APELLIDO: row.APELLIDO,
+            NOMBRE_COMPLETO: row.NOMBRE_COMPLETO,
+            ESTADO_COLABORADOR: row.ESTADO_COLABORADOR,
+            PUESTO: row.PUESTO,
+            DEPARTAMENTO: row.DEPARTAMENTO,
+            CODIGO_DEPARTAMENTO: row.CODIGO_DEPARTAMENTO,
+            CORREO: row.CORREO,
+            FECHA_ASIGNACION: row.FECHA_ASIGNACION,
+            USUARIO_APLICA: row.USUARIO_APLICA,
+            CAPACITACIONES_ASIGNADAS: [] 
+          });
+        }
+        
+        colaboradoresMap.get(colaboradorId).CAPACITACIONES_ASIGNADAS.push({
+          ID_CAPACITACION: row.ID_CAPACITACION,
+          ID_DETALLE: row.ID_DETALLE_PROGRAMA,
+          NOMBRE: row.NOMBRE_CAPACITACION,
+          CATEGORIA_CAPACITACION: row.CATEGORIA_CAPACITACION,
+          TIPO_CAPACITACION: row.TIPO_CAPACITACION,
+          MES_PROGRAMADO: row.MES_PROGRAMADO,
+          COMPLETADA: row.COMPLETADA === 1,
+          ESTADO_CAPACITACION: row.ESTADO_CAPACITACION,
+          ID_SESION: row.ID_SESION,
+          NUMERO_SESION: row.NUMERO_SESION,
+          NOMBRE_SESION: row.NOMBRE_SESION,
+          FECHA_PROGRAMADA: row.FECHA_PROGRAMADA,
+          ESTADO_SESION: row.ESTADO_SESION,
+          ASISTIO: row.ASISTIO,
+          FECHA_ASISTENCIA: row.FECHA_ASISTENCIA,
+          NOTA_OBTENIDA: row.NOTA_OBTENIDA,
+          APROBADO: row.APROBADO,
+          FECHA_ASIGNACION_CAPACITACION: row.FECHA_ASIGNACION_CAPACITACION
+        });
+      });
+      
+      const colaboradoresAgrupados = Array.from(colaboradoresMap.values());
+      
+      return {
+        DETALLE_PROGRAMA: detallePrograma,
+        CAPACITACIONES_PROGRAMA: capacitacionesPrograma,
+        COLABORADORES_PROGRAMA: colaboradoresAgrupados,
+      };
+
     } catch (error) {
       this.databaseErrorService.handle(error);
     }
