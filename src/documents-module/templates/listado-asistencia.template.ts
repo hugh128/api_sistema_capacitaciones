@@ -99,7 +99,7 @@ const createHeader = (currentPage: number, pageCount: number, logo: string, fech
               ]
             },
             layout: {
-              hLineWidth: (i) => (i === 2 ? 0.5 : 0),
+              hLineWidth: (i) => (i === 2 ? 1 : 0),
               vLineWidth: () => 0,
               hLineColor: () => 'black',
               vLineColor: () => 'black'
@@ -112,14 +112,14 @@ const createHeader = (currentPage: number, pageCount: number, logo: string, fech
         // --- FILA 2: BARRA DE VERSIÓN ---
         [
           { text: 'Versión: 004', fontSize: 11, alignment: 'center', margin: [2, 5, 2, 0] },
-          { text: `Fecha de emisión: ${fechaEmision}`, fontSize: 11, alignment: 'center', margin: [2, 5, 2, 0] },
+          { text: `Fecha de emisión: 29 de mayo de 2024`, fontSize: 11, alignment: 'center', margin: [2, 5, 2, 0] },
           { text: 'Fecha de próxima revisión:\nMAYO/2029', fontSize: 11, alignment: 'center', margin: [2, 0, 2, 0] }
         ]
       ]
     },
     layout: {
-      hLineWidth: () => 0.5,
-      vLineWidth: () => 0.5,
+      hLineWidth: () => 1,
+      vLineWidth: () => 1,
       hLineColor: () => 'black',
       vLineColor: () => 'black'
     }
@@ -301,7 +301,7 @@ export const crearListadoAsistencia = async (data: CrearAsistenciaPdfDto): Promi
                   ]
                 },
                 layout: {
-                  hLineWidth: (i) => (i === 2 ? 0.5 : 0),
+                  hLineWidth: (i) => (i === 2 ? 1 : 0),
                   vLineWidth: () => 0,
                   hLineColor: () => 'black',
                   vLineColor: () => 'black'
@@ -312,8 +312,8 @@ export const crearListadoAsistencia = async (data: CrearAsistenciaPdfDto): Promi
           ]
         },
         layout: {
-          hLineWidth: (i) => (i === 0 ? 0.5 : 0),
-          vLineWidth: () => 0.5,
+          hLineWidth: (i) => (i === 0 ? 1 : 0),
+          vLineWidth: () => 1,
           hLineColor: () => 'black',
           vLineColor: () => 'black'
         },
@@ -336,8 +336,8 @@ export const crearListadoAsistencia = async (data: CrearAsistenciaPdfDto): Promi
           ]
         },
         layout: {
-          hLineWidth: (i, node) => (i === node.table.body.length ? 0 : 0.5),
-          vLineWidth: () => 0.5,
+          hLineWidth: (i, node) => (i === node.table.body.length ? 0 : 1),
+          vLineWidth: () => 1,
           hLineColor: () => 'black',
           vLineColor: () => 'black'
         },
@@ -380,8 +380,8 @@ export const crearListadoAsistencia = async (data: CrearAsistenciaPdfDto): Promi
           ]
         },
         layout: {
-          hLineWidth: () => 0.5,
-          vLineWidth: () => 0.5,
+          hLineWidth: () => 1,
+          vLineWidth: () => 1,
           hLineColor: () => 'black',
           vLineColor: () => 'black'
         },
@@ -404,7 +404,7 @@ export const crearListadoAsistencia = async (data: CrearAsistenciaPdfDto): Promi
                 type: 'line',
                 x1: 0, y1: 0,
                 x2: 162, y2: 0,
-                lineWidth: 1.5,
+                lineWidth: 1.3,
                 lineColor: 'black'
               }
             ],
@@ -434,8 +434,8 @@ export const crearListadoAsistencia = async (data: CrearAsistenciaPdfDto): Promi
           ]
         },
         layout: {
-          hLineWidth: () => 0.5,
-          vLineWidth: () => 0.5,
+          hLineWidth: () => 1,
+          vLineWidth: () => 1,
           hLineColor: () => 'black',
           vLineColor: () => 'black'
         },
@@ -452,7 +452,7 @@ export const crearListadoAsistencia = async (data: CrearAsistenciaPdfDto): Promi
                 type: 'line',
                 x1: 0, y1: 0,
                 x2: 210, y2: 0,
-                lineWidth: 0.5,
+                lineWidth: 1,
                 lineColor: 'black'
               }
             ],
@@ -493,8 +493,8 @@ export const crearListadoAsistencia = async (data: CrearAsistenciaPdfDto): Promi
           ]
         },
         layout: {
-          hLineWidth: (i) => (i === 1 ? 0 : 0.5),
-          vLineWidth: () => 0.5,
+          hLineWidth: (i) => (i === 1 ? 0 : 1),
+          vLineWidth: () => 1,
           hLineColor: () => 'black',
           vLineColor: () => 'black'
         },
