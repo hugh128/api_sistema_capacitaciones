@@ -109,7 +109,9 @@ export class PersonaService {
         .leftJoin('persona.USUARIO', 'usuario')
         .where('usuario.ID_USUARIO IS NULL')
         .andWhere('persona.ESTADO = :estado', { estado: 1 })
+        .orderBy('persona.NOMBRE', 'ASC')
         .getMany();
+        
     } catch (error) {
       handleDbError(error);
     }
