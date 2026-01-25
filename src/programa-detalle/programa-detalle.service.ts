@@ -33,7 +33,6 @@ export class ProgramaDetalleService {
     const departamentosJSON = JSON.stringify(DEPARTAMENTOS_IDS);
     const puestosJSON = JSON.stringify(PUESTOS_IDS);
 
-
     try {
       
       const programaDetalleResutl = await this.entityManager.query(
@@ -106,13 +105,13 @@ export class ProgramaDetalleService {
         throw new NotFoundException(`Detalle del programa con ID ${id} no encontrado.`);
       }
 
-
       const formattedDetails = programaDetalles.map((detalle) => ({
         ID_DETALLE: detalle.ID_DETALLE,
         NOMBRE: detalle.NOMBRE,
         CATEGORIA_CAPACITACION: detalle.CATEGORIA_CAPACITACION,
         TIPO_CAPACITACION: detalle.TIPO_CAPACITACION,
         APLICA_TODOS_COLABORADORES: detalle.APLICA_TODOS_COLABORADORES,
+        APLICA_DIPLOMA: detalle.APLICA_DIPLOMA,
         MES_PROGRAMADO: detalle.MES_PROGRAMADO,
         ESTADO: detalle.ESTADO,
         PROGRAMA_ID: detalle.PROGRAMA_ID,
@@ -138,8 +137,55 @@ export class ProgramaDetalleService {
     }
   }
 
-  update(id: number, updateProgramaDetalleDto: UpdateProgramaDetalleDto) {
-    return `This action updates a #${id} programaDetalle`;
+  async update(id: number, updateProgramaDetalleDto: UpdateProgramaDetalleDto) {
+    const {
+      NOMBRE,
+      CATEGORIA_CAPACITACION,
+      TIPO_CAPACITACION,
+      APLICA_TODOS_COLABORADORES,
+      APLICA_DIPLOMA,
+      MES_PROGRAMADO,
+      ESTADO,
+      DEPARTAMENTOS_IDS,
+      PUESTOS_IDS
+    } = updateProgramaDetalleDto;
+
+    const departamentosJSON = JSON.stringify(DEPARTAMENTOS_IDS);
+    const puestosJSON = JSON.stringify(PUESTOS_IDS);
+
+    try {
+      const programaDetalleResult = await this.entityManager.query(
+        `EXEC sp_PROGRAMA_DETALLE_ACTUALIZAR
+          @ID_DETALLE = @0,
+          @NOMBRE = @1,
+          @CATEGORIA_CAPACITACION = @2,
+          @TIPO_CAPACITACION = @3,
+          @APLICA_TODOS_COLABORADORES = @4,
+          @APLICA_DIPLOMA = @5,
+          @MES_PROGRAMADO = @6,
+          @ESTADO = @7,
+          @DEPARTAMENTOS_IDS = @8,
+          @PUESTOS_IDS = @9
+        `,
+        [
+          id,
+          NOMBRE,
+          CATEGORIA_CAPACITACION,
+          TIPO_CAPACITACION,
+          APLICA_TODOS_COLABORADORES,
+          APLICA_DIPLOMA,
+          MES_PROGRAMADO,
+          ESTADO,
+          departamentosJSON,
+          puestosJSON
+        ]
+      );
+
+      const programId = programaDetalleResult[0].ID_PROGRAMA;
+      return programId;
+    } catch (error) {
+      this.databaseErrorService.handle(error);
+    }
   }
 
   remove(id: number) {
