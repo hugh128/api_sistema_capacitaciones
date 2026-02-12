@@ -33,8 +33,8 @@ async function bootstrap() {
   );
   const reflector = app.get(Reflector);
   app.useGlobalGuards(new JwtAuthGuard(reflector));
-  const port = process.env.PORT || 3001;
-  await app.listen(port, '0.0.0.0');
+  const port = process.env.PORT || 4000;
+  await app.listen(process.env.PORT || 4000);
 
   console.log(`Servidor corriendo en el puerto ${port}`);
 }
