@@ -1,5 +1,6 @@
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Query } from '@nestjs/common';
 import { ColaboradoresService } from './colaboradores.service';
+import { EditarCategoriaColaboradorDto } from './dto/editar-categoria-colaborador.dto';
 
 @Controller('colaboradores')
 export class ColaboradoresController {
@@ -61,6 +62,15 @@ export class ColaboradoresController {
   @Get(':id/detalle-plan')
   async obtenerDetallePlanColaborador(@Param('id', ParseIntPipe) id: number) {
     return this.colaboradoresService.obtenerDetallePlanColaborador(id);
+  }
+
+  /**
+   * PATCH /colaboradores/categoria
+   * Editar categoría de uno o varios colaboradores
+   */
+  @Patch('categoria')
+  async editarCategoriaColaborador(@Body() dto: EditarCategoriaColaboradorDto) {
+    return this.colaboradoresService.editarCategoriaColaborador(dto);
   }
 
 }

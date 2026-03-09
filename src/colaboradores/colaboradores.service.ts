@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { DatabaseErrorService } from 'src/common/database-error.service';
 import { StorageService } from 'src/storage/storage.service';
 import { DataSource, EntityManager } from 'typeorm';
+import { EditarCategoriaColaboradorDto } from './dto/editar-categoria-colaborador.dto';
 
 @Injectable()
 export class ColaboradoresService {
@@ -121,6 +122,28 @@ export class ColaboradoresService {
       };
     } catch (error) {
       this.logger.error('Error al obtener resumen de colaborador', error);
+      this.databaseErrorService.handle(error);
+    }
+  }
+
+  /**
+   * Editar categoría de uno o varios colaboradores
+   */
+  async editarCategoriaColaborador(dto: EditarCategoriaColaboradorDto) {
+    try {
+      const idsCSV = dto.ids.join(',');
+
+      const result = await this.entityManager.query(
+        `EXEC SP_EDITAR_CATEGORIA_COLABORADOR
+          @IDS_CAPACITACION_COLABORADOR = @0,
+          @CATEGORIA = @1,
+          @USUARIO = @2`,
+        [idsCSV, dto.categoria, dto.usuario]
+      );
+
+      return result[0];
+    } catch (error) {
+      this.logger.error('Error al editar categoría de colaborador', error);
       this.databaseErrorService.handle(error);
     }
   }
