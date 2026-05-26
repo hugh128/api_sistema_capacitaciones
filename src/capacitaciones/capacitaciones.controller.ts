@@ -23,6 +23,9 @@ import { ColaboradorAsistenciaDto } from './dto/ColaboradorAsistenciaDto';
 import { CrearSesionAsignarColaboradoresDto } from './dto/crear-sesion-y-asignar-colaboradores.dto';
 import { EditarSesionDto } from './dto/editar-sesion.dto';
 import { AplicarProgramaSelectivoDto } from './dto/aplicar-programa-selectivo.dto';
+import { CrearCapacitacionLmsDto } from './dto/crear-capacitacion-lms.dto';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 
 @Controller('capacitaciones')
 export class CapacitacionesController {
@@ -583,5 +586,68 @@ export class CapacitacionesController {
       body.usuario,
     );
   }
-  
+
+  /**
+   * POST /capacitaciones/lms
+   * Crea una capacitación completa en el LMS:
+   * programa_detalle → capacitacion → sesion → colaboradores
+   */
+  @Post('lms')
+  @UseInterceptors(AnyFilesInterceptor())
+  async crearCapacitacionLms(
+    @Body() body: Record<string, string>,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    // ── 1. Validar archivo de listado ───────────
+    const listaFile = files.find((f) => f.fieldname === 'listaAsistencia');
+    if (!listaFile) {
+      throw new BadRequestException('El archivo de lista de asistencia es obligatorio');
+    }
+    if (listaFile.mimetype !== 'application/pdf') {
+      throw new BadRequestException('La lista de asistencia debe ser un PDF');
+    }
+ 
+    // ── 2. Validar archivos de examen individuales ────────────
+    const examenFiles = files.filter((f) => f.fieldname.startsWith('examen_'));
+    for (const ef of examenFiles) {
+      if (ef.mimetype !== 'application/pdf') {
+        throw new BadRequestException(
+          `El examen del colaborador ${ef.fieldname.replace('examen_', '')} debe ser un PDF`,
+        );
+      }
+    }
+ 
+    // ── 3. Parsear y validar colaboradores ────────────────────
+    let colaboradoresRaw: { idColaborador: number }[];
+    try {
+      colaboradoresRaw = JSON.parse(body.colaboradores);
+    } catch {
+      throw new BadRequestException('El campo colaboradores debe ser un JSON válido');
+    }
+ 
+    // ── 4. Construir y validar el DTO ─────────────────────────
+    const dto = plainToInstance(CrearCapacitacionLmsDto, {
+      nombre:                body.nombre,
+      categoriaCapacitacion: body.categoriaCapacitacion,
+      tipoCapacitacion:      body.tipoCapacitacion,
+      aplicaExamen:          body.aplicaExamen === 'true',
+      notaMinima:            body.notaMinima ? Number(body.notaMinima) : undefined,
+      programaId:            Number(body.programaId),
+      capacitadorId:         Number(body.capacitadorId),
+      fechaProgramada:       body.fechaProgramada,
+      modalidad:             body.modalidad,
+      categoriaSesion:       body.categoriaSesion,
+      usuarioCreacion:       body.usuarioCreacion,
+      colaboradores:         colaboradoresRaw,
+    });
+ 
+    const errors = await validate(dto);
+    if (errors.length > 0) {
+      const messages = errors.flatMap((e) => Object.values(e.constraints ?? {}));
+      throw new BadRequestException(messages);
+    }
+ 
+    return this.capacitacionesService.crearCapacitacionLms(dto, listaFile, examenFiles);
+  }
+
 }

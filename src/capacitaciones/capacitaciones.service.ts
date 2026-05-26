@@ -11,6 +11,8 @@ import { ColaboradorAsistenciaDto } from './dto/ColaboradorAsistenciaDto';
 import { CrearSesionAsignarColaboradoresDto } from './dto/crear-sesion-y-asignar-colaboradores.dto';
 import { EditarSesionDto } from './dto/editar-sesion.dto';
 import { AplicarProgramaSelectivoDto } from './dto/aplicar-programa-selectivo.dto';
+import { v4 as uuidv4 } from 'uuid';
+import { CrearCapacitacionLmsDto } from './dto/crear-capacitacion-lms.dto';
 
 @Injectable()
 export class CapacitacionesService {
@@ -1199,7 +1201,7 @@ export class CapacitacionesService {
         return acc;
       }, {});
 
-      const listaBase = Object.values(colaboradoresMap);
+      const listaBase = Object.values(colaboradoresMap as Record<string, any>);
 
       return {
         disponibles: listaBase
@@ -1284,6 +1286,124 @@ export class CapacitacionesService {
     } catch (error) {
       this.databaseErrorService.handle(error);
     }
+  }
+
+  /**
+   * Crea una capacitación completa en el LMS.
+   */
+  async crearCapacitacionLms(
+    dto: CrearCapacitacionLmsDto,
+    listaFile: Express.Multer.File,
+    examenFiles: Express.Multer.File[],
+  ) {
+    // ── 1. Subir archivo de listado ───────────────────────────
+
+    const listaFileName = `${this.sanitizarNombre(listaFile.originalname)}_${uuidv4()}`;
+    const urlListado = await this.storageService.uploadFileWithName(
+      listaFile,
+      `capacitaciones/listas-asistencia/${listaFileName}`,
+    );
+ 
+    // ── 2. Subir examenes individuales y mapear por ID ────────
+    const urlExamenPorColaborador = new Map<number, string>();
+ 
+    for (const examenFile of examenFiles) {
+      const idColaborador = Number(examenFile.fieldname.replace('examen_', ''));
+      if (isNaN(idColaborador)) continue;
+ 
+      const examenFileName = `${this.sanitizarNombre(examenFile.originalname)}_${uuidv4()}`;
+      const urlExamen = await this.storageService.uploadFileWithName(
+        examenFile,
+        `capacitaciones/examenes/${examenFileName}`,
+      );
+      urlExamenPorColaborador.set(idColaborador, urlExamen);
+    }
+
+    // ── 3. Construir JSON de colaboradores para el SP ─────────
+    const colaboradoresJson = dto.colaboradores.map(({ idColaborador }) => {
+      let urlExamen: string | null = null;
+ 
+      if (dto.aplicaExamen) {
+        urlExamen = urlExamenPorColaborador.get(idColaborador) ?? urlListado;
+      }
+ 
+      return { ID_COLABORADOR: idColaborador, URL_EXAMEN: urlExamen };
+    });
+ 
+    try {
+      const result = await this.entityManager.query(
+        `EXEC SP_INSERTAR_CAPACITACION_MIGRACION
+          @nombre                 = @0,
+          @categoria_capacitacion = @1,
+          @tipo_capacitacion      = @2,
+          @aplica_examen          = @3,
+          @nota_minima            = @4,
+          @programa_id            = @5,
+          @capacitador_id         = @6,
+          @url_lista_asistencia   = @7,
+          @fecha_programada       = @8,
+          @modalidad              = @9,
+          @categoria_sesion       = @10,
+          @usuario_creacion       = @11,
+          @colaboradores          = @12
+        `,
+        [
+          dto.nombre,
+          dto.categoriaCapacitacion,
+          dto.tipoCapacitacion,
+          dto.aplicaExamen ? 1 : 0,
+          dto.notaMinima ?? 70,
+          dto.programaId,
+          dto.capacitadorId,
+          urlListado,
+          dto.fechaProgramada,
+          dto.modalidad,
+          dto.categoriaSesion,
+          dto.usuarioCreacion,
+          JSON.stringify(colaboradoresJson),
+        ],
+      );
+ 
+      return {
+        success: true,
+        message: 'Capacitación creada exitosamente.',
+        data: result[0], 
+      };
+    } catch (error) {
+      await this.rollbackArchivos(urlListado, [...urlExamenPorColaborador.values()]);
+      this.logger.error('Error al crear capacitación LMS', error);
+      this.databaseErrorService.handle(error);
+    }
+  }
+ 
+  /**
+   * Elimina archivos subidos a R2 cuando el SP falla.
+   */
+  private async rollbackArchivos(
+    urlListado: string,
+    urlsExamen: string[],
+  ): Promise<void> {
+    const urlsUnicas = new Set<string>(
+      [urlListado, ...urlsExamen].filter(Boolean),
+    );
+ 
+    await Promise.allSettled(
+      [...urlsUnicas].map((url) =>
+        this.storageService.deleteFile(url).catch((e) =>
+          this.logger.warn(`No se pudo limpiar archivo: ${url}`, e),
+        ),
+      ),
+    );
+  }
+
+  private sanitizarNombre(nombre: string): string {
+    return nombre
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]/g, '_')
+      .replace(/_+/g, '_')
+      .substring(0, 50);
   }
 
 }
